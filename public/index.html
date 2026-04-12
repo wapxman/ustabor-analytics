@@ -24,11 +24,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:#fff;border-bott
 .tab.active{color:#2997ff;border-bottom-color:#2997ff}
 
 .content{max-width:1200px;margin:0 auto;padding:152px 2rem 3rem}
-
 .report-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
 .report-header h1{font-size:1.8rem;font-weight:700;letter-spacing:-0.03em}
 .report-header p{color:#6e6e73;font-size:.9rem;margin-top:.3rem}
-
 .filters{display:flex;gap:.5rem;align-items:center}
 .yr-btn{padding:8px 18px;border-radius:980px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#6e6e73;font-size:.82rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:inherit}
 .yr-btn:hover{border-color:rgba(255,255,255,0.3);color:#fff}
@@ -42,7 +40,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:#fff;border-bott
 .vb{color:#2997ff}.vp{color:#bf5af2}.vg{color:#30d158}.va{color:#ff9f0a}
 
 .charts-row{display:grid;grid-template-columns:3fr 2fr;gap:.8rem;margin-bottom:.8rem}
-.cb{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.2rem}
+.cb{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.2rem;margin-bottom:.8rem}
 .cb h3{font-size:.85rem;font-weight:600;margin-bottom:.8rem}
 .chart-wrap{position:relative;height:220px}
 
@@ -55,9 +53,11 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 .n{text-align:right;font-variant-numeric:tabular-nums}
 .total td{font-weight:600;border-top:2px solid rgba(255,255,255,0.1)}
 
-.placeholder{text-align:center;padding:6rem 2rem;color:#6e6e73}
-.placeholder h1{margin-bottom:.5rem}
+.loading{text-align:center;padding:4rem;color:#6e6e73}
+.loading .spinner{width:32px;height:32px;border:3px solid rgba(255,255,255,0.1);border-top-color:#2997ff;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
 
+.placeholder{text-align:center;padding:6rem 2rem;color:#6e6e73}
 @media(max-width:900px){.metrics-grid{grid-template-columns:repeat(2,1fr)}.charts-row{grid-template-columns:1fr}}
 @media(max-width:600px){.metrics-grid{grid-template-columns:1fr}.tabs-inner{overflow-x:auto}.nav-links{display:none}.report-header{flex-direction:column}}
 </style>
@@ -74,20 +74,10 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 
 <div class="content" id="tab-0">
   <div class="report-header">
-    <div><h1>Трафик сайта — <span id="yr-title">2024</span></h1><p id="yr-sub">Январь — Август 2024</p></div>
-    <div class="filters">
-      <button class="yr-btn" onclick="setYear(2023)">2023</button>
-      <button class="yr-btn active" onclick="setYear(2024)">2024</button>
-    </div>
+    <div><h1>Трафик сайта — <span id="yr-title">2024</span></h1><p id="yr-sub">Загрузка данных из Google Sheets...</p></div>
+    <div class="filters" id="year-filters"></div>
   </div>
-
-  <div class="metrics-grid" id="metrics"></div>
-  <div class="charts-row">
-    <div class="cb"><h3>Посетители и клики по месяцам</h3><div class="chart-wrap"><canvas id="cVisitors"></canvas></div></div>
-    <div class="cb"><h3>Заявки по месяцам</h3><div class="chart-wrap"><canvas id="cLeads"></canvas></div></div>
-  </div>
-  <div class="tb"><h3>Помесячная сводка</h3><div id="tableWrap"></div></div>
-  <div class="cb"><h3>Каналы — средние показатели</h3><div class="chart-wrap"><canvas id="cChannels"></canvas></div></div>
+  <div id="dashboard"><div class="loading"><div class="spinner"></div>Загрузка данных из Google Sheets...</div></div>
 </div>
 
 <div class="content" id="tab-1" style="display:none"><div class="placeholder"><h1>Каналы</h1><p>Скоро будет добавлен</p></div></div>
@@ -100,84 +90,160 @@ function showTab(n){
   for(let i=0;i<4;i++){const e=document.getElementById('tab-'+i);if(e)e.style.display=i===n?'block':'none'}
 }
 
-const DATA={
-  2024:{
-    months:['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг'],
-    visitors:[66261,33393,37137,46858,39330,36493,41682,36906],
-    clicks:[3838,3443,4114,4045,4304,7071,6398,5908],
-    leads:[97,100,121,120,120,213,185,194],
-    conv:['5,94%','10,61%','11,40%','8,89%','11,25%','19,96%','15,79%','16,50%'],
-    mNames:['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август'],
-    period:'Январь — Август 2024',
-    channels:['Organic','Direct','Paid Search','Display Paid','Social','Referal','Other','SMS'],
-    chVisitors:[31330,7726,1493,481,481,511,109,28],
-    chClicks:[3668,620,519,16,13,17,6,0],
-    chLeads:[91,21,20,1,1,0.4,1.4,0]
-  },
-  2023:{
-    months:['Ноя','Дек'],
-    visitors:[32445,26627],
-    clicks:[3906,4702],
-    leads:[166,122],
-    conv:['12,55%','18,12%'],
-    mNames:['Ноябрь','Декабрь'],
-    period:'Ноябрь — Декабрь 2023',
-    channels:['Organic','Direct','Paid Search','Display Paid','Social','Other','Referal'],
-    chVisitors:[21081,3147,2395,1510,938,56,410],
-    chClicks:[3199,422,552,48,46,10,29],
-    chLeads:[107,7,30,0,0,1,1]
-  }
+const SHEET_ID='1VkQwl1aknuWDExiTqadsvf6FmnLWcUwCEsM_joUAmmk';
+const MONTHS_RU={
+  'январь':0,'февраль':1,'март':2,'апрель':3,'май':4,'июнь':5,
+  'июль':6,'август':7,'сентябрь':8,'октябрь':9,'ноябрь':10,'декабрь':11
 };
+const MONTH_SHORT=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+const MONTH_FULL=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 
-let curYear=2024, chart1=null, chart2=null, chart3=null;
-const gc='rgba(255,255,255,0.04)', tc='#6e6e73';
+let ALL_DATA={};
+let curYear=2024;
+let chart1=null,chart2=null,chart3=null;
+const gc='rgba(255,255,255,0.04)',tc='#6e6e73';
 
 function fmt(n){return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,' ')}
+function parseNum(s){if(!s)return 0;return parseInt(String(s).replace(/\s/g,'').replace(/,/g,''))||0}
+function parseConv(s){if(!s)return 0;return parseFloat(String(s).replace(',','.').replace('%',''))||0}
+
+async function loadData(){
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('Каналы')}`;
+    const res=await fetch(url);
+    const text=await res.text();
+    const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);?/)[1]);
+    const rows=json.table.rows;
+    
+    let currentMonth=null,currentYear=null;
+    
+    rows.forEach(row=>{
+      const cells=row.c||[];
+      const a=cells[0]?cells[0].v:'';
+      if(!a)return;
+      const str=String(a).trim();
+      
+      const monthMatch=str.match(/^(\S+)\s+(\d{4})$/i);
+      if(monthMatch){
+        const mName=monthMatch[1].toLowerCase();
+        const year=parseInt(monthMatch[2]);
+        if(MONTHS_RU[mName]!==undefined){
+          currentMonth=MONTHS_RU[mName];
+          currentYear=year;
+          if(!ALL_DATA[year])ALL_DATA[year]={months:{}};
+          if(!ALL_DATA[year].months[currentMonth])ALL_DATA[year].months[currentMonth]={channels:[],total:null};
+        }
+        return;
+      }
+      
+      if(str==='Канал'||!currentYear)return;
+      
+      const visitors=cells[1]?parseNum(cells[1].v):0;
+      const clicks=cells[2]?parseNum(cells[2].v):0;
+      const leads=cells[3]?parseNum(cells[3].v):0;
+      const conv=cells[4]?(cells[4].v||cells[4].f||'0%'):'0%';
+      
+      if(str==='Итого'){
+        ALL_DATA[currentYear].months[currentMonth].total={visitors,clicks,leads,conv:parseConv(conv)};
+      }else{
+        ALL_DATA[currentYear].months[currentMonth].channels.push({name:str,visitors,clicks,leads,conv:parseConv(conv)});
+      }
+    });
+    
+    renderYearButtons();
+    const years=Object.keys(ALL_DATA).map(Number).sort();
+    if(years.includes(2024))curYear=2024;
+    else curYear=years[years.length-1];
+    render();
+  }catch(e){
+    document.getElementById('dashboard').innerHTML=`<div class="loading" style="color:#ff453a">Ошибка загрузки: ${e.message}<br><br>Убедитесь что таблица доступна по ссылке (Файл → Поделиться → Все у кого есть ссылка)</div>`;
+  }
+}
+
+function renderYearButtons(){
+  const years=Object.keys(ALL_DATA).map(Number).sort();
+  document.getElementById('year-filters').innerHTML=years.map(y=>`<button class="yr-btn${y===curYear?' active':''}" onclick="setYear(${y})">${y}</button>`).join('');
+}
 
 function setYear(y){
   curYear=y;
-  document.querySelectorAll('.yr-btn').forEach(b=>b.classList.toggle('active',b.textContent==y));
+  renderYearButtons();
   render();
 }
 
 function render(){
-  const d=DATA[curYear];
+  const yearData=ALL_DATA[curYear];
+  if(!yearData){document.getElementById('dashboard').innerHTML='<div class="loading">Нет данных</div>';return;}
+  
+  const sortedMonths=Object.keys(yearData.months).map(Number).sort((a,b)=>a-b);
+  const months=[],visitors=[],clicks=[],leads=[],convs=[];
+  const channelAgg={};
+  
+  sortedMonths.forEach(m=>{
+    const d=yearData.months[m];
+    if(!d.total)return;
+    months.push(MONTH_SHORT[m]);
+    visitors.push(d.total.visitors);
+    clicks.push(d.total.clicks);
+    leads.push(d.total.leads);
+    convs.push(d.total.conv);
+    d.channels.forEach(ch=>{
+      if(!channelAgg[ch.name])channelAgg[ch.name]={visitors:0,clicks:0,leads:0};
+      channelAgg[ch.name].visitors+=ch.visitors;
+      channelAgg[ch.name].clicks+=ch.clicks;
+      channelAgg[ch.name].leads+=ch.leads;
+    });
+  });
+  
+  const tv=visitors.reduce((a,b)=>a+b,0);
+  const tc2=clicks.reduce((a,b)=>a+b,0);
+  const tl=leads.reduce((a,b)=>a+b,0);
+  const avgConv=tv>0?((tc2/tv)*100).toFixed(1):'0';
+  const firstM=MONTH_FULL[sortedMonths[0]];
+  const lastM=MONTH_FULL[sortedMonths[sortedMonths.length-1]];
+  
   document.getElementById('yr-title').textContent=curYear;
-  document.getElementById('yr-sub').textContent=d.period;
-  const tv=d.visitors.reduce((a,b)=>a+b,0);
-  const tc2=d.clicks.reduce((a,b)=>a+b,0);
-  const tl=d.leads.reduce((a,b)=>a+b,0);
-  const cv=((tc2/tv)*100).toFixed(1);
-  document.getElementById('metrics').innerHTML=`
-    <div class="mc"><div class="l">Посетители</div><div class="v vb">${tv>1000?(tv/1000).toFixed(0)+'K':tv}</div><div class="c">${d.period}</div></div>
-    <div class="mc"><div class="l">Клики на контакты</div><div class="v vp">${tc2>1000?(tc2/1000).toFixed(1)+'K':tc2}</div><div class="c">по всем каналам</div></div>
-    <div class="mc"><div class="l">Заявки</div><div class="v vg">${fmt(tl)}</div><div class="c">${d.months.length} мес.</div></div>
-    <div class="mc"><div class="l">Ср. конверсия</div><div class="v va">${cv}%</div><div class="c">клики / посетители</div></div>`;
-
-  let html='<table><thead><tr><th>Месяц</th><th class="n">Посетители</th><th class="n">Клики</th><th class="n">Заявки</th><th class="n">Конверсия</th></tr></thead><tbody>';
-  d.mNames.forEach((m,i)=>{html+=`<tr><td>${m}</td><td class="n">${fmt(d.visitors[i])}</td><td class="n">${fmt(d.clicks[i])}</td><td class="n">${d.leads[i]}</td><td class="n">${d.conv[i]}</td></tr>`});
-  html+=`<tr class="total"><td>Итого</td><td class="n" style="color:#2997ff">${fmt(tv)}</td><td class="n" style="color:#bf5af2">${fmt(tc2)}</td><td class="n" style="color:#30d158">${fmt(tl)}</td><td class="n" style="color:#ff9f0a">${cv}%</td></tr></tbody></table>`;
-  document.getElementById('tableWrap').innerHTML=html;
-
-  if(chart1)chart1.destroy();
-  if(chart2)chart2.destroy();
-  if(chart3)chart3.destroy();
-
-  const opts=(yL,yR)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tc,font:{size:11},boxWidth:12}}},scales:{x:{grid:{color:gc},ticks:{color:tc,font:{size:11}}},y:{position:'left',grid:{color:gc},ticks:{color:tc,font:{size:11},callback:v=>v>=1000?(v/1000)+'K':v}},y1:{display:!!yR,position:'right',grid:{drawOnChartArea:false},ticks:{color:tc,font:{size:11},callback:v=>v>=1000?(v/1000)+'K':v}}}});
-
-  chart1=new Chart(document.getElementById('cVisitors'),{type:'line',data:{labels:d.months,datasets:[
-    {label:'Посетители',data:d.visitors,borderColor:'#2997ff',backgroundColor:'rgba(41,151,255,0.08)',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:'#2997ff',borderWidth:2},
-    {label:'Клики',data:d.clicks,borderColor:'#bf5af2',backgroundColor:'rgba(191,90,242,0.08)',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:'#bf5af2',borderWidth:2,yAxisID:'y1'}
-  ]},options:opts(true,true)});
-
-  chart2=new Chart(document.getElementById('cLeads'),{type:'bar',data:{labels:d.months,datasets:[{label:'Заявки',data:d.leads,backgroundColor:d.leads.map(v=>v>150?'#30d158':'rgba(48,209,88,0.5)'),borderRadius:4,barPercentage:.6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gc},ticks:{color:tc,font:{size:11}}},y:{grid:{color:gc},ticks:{color:tc,font:{size:11}}}}}});
-
-  chart3=new Chart(document.getElementById('cChannels'),{type:'bar',data:{labels:d.channels,datasets:[
-    {label:'Посетители (тыс.)',data:d.chVisitors.map(v=>+(v/1000).toFixed(1)),backgroundColor:'#2997ff',borderRadius:3,barPercentage:.7},
-    {label:'Клики (тыс.)',data:d.chClicks.map(v=>+(v/1000).toFixed(1)),backgroundColor:'#bf5af2',borderRadius:3,barPercentage:.7}
-  ]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{labels:{color:tc,font:{size:11},boxWidth:12}}},scales:{x:{grid:{color:gc},ticks:{color:tc,font:{size:11}}},y:{grid:{color:gc},ticks:{color:tc,font:{size:11}}}}}});
+  document.getElementById('yr-sub').textContent=`${firstM} — ${lastM} ${curYear} · Данные из Google Sheets`;
+  
+  let html=`<div class="metrics-grid">
+    <div class="mc"><div class="l">Посетители</div><div class="v vb">${tv>=1000?(tv/1000).toFixed(0)+'K':tv}</div><div class="c">${months.length} мес.</div></div>
+    <div class="mc"><div class="l">Клики на контакты</div><div class="v vp">${tc2>=1000?(tc2/1000).toFixed(1)+'K':tc2}</div><div class="c">все каналы</div></div>
+    <div class="mc"><div class="l">Заявки</div><div class="v vg">${fmt(tl)}</div><div class="c">${firstM}–${lastM}</div></div>
+    <div class="mc"><div class="l">Ср. конверсия</div><div class="v va">${avgConv}%</div><div class="c">клики/посетители</div></div>
+  </div>`;
+  
+  html+=`<div class="charts-row"><div class="cb"><h3>Посетители и клики по месяцам</h3><div class="chart-wrap"><canvas id="cV"></canvas></div></div>
+  <div class="cb"><h3>Заявки по месяцам</h3><div class="chart-wrap"><canvas id="cL"></canvas></div></div></div>`;
+  
+  html+=`<div class="tb"><h3>Помесячная сводка — ${curYear}</h3><table><thead><tr><th>Месяц</th><th class="n">Посетители</th><th class="n">Клики</th><th class="n">Заявки</th><th class="n">Конверсия</th></tr></thead><tbody>`;
+  sortedMonths.forEach((m,i)=>{
+    const d=yearData.months[m].total;
+    if(!d)return;
+    html+=`<tr><td>${MONTH_FULL[m]}</td><td class="n">${fmt(d.visitors)}</td><td class="n">${fmt(d.clicks)}</td><td class="n">${d.leads}</td><td class="n">${d.conv.toFixed(2).replace('.',',')}%</td></tr>`;
+  });
+  html+=`<tr class="total"><td>Итого</td><td class="n" style="color:#2997ff">${fmt(tv)}</td><td class="n" style="color:#bf5af2">${fmt(tc2)}</td><td class="n" style="color:#30d158">${fmt(tl)}</td><td class="n" style="color:#ff9f0a">${avgConv}%</td></tr></tbody></table></div>`;
+  
+  html+=`<div class="cb"><h3>Каналы — суммарно за ${curYear}</h3><div class="chart-wrap"><canvas id="cC"></canvas></div></div>`;
+  
+  document.getElementById('dashboard').innerHTML=html;
+  
+  if(chart1)chart1.destroy();if(chart2)chart2.destroy();if(chart3)chart3.destroy();
+  
+  chart1=new Chart(document.getElementById('cV'),{type:'line',data:{labels:months,datasets:[
+    {label:'Посетители',data:visitors,borderColor:'#2997ff',backgroundColor:'rgba(41,151,255,0.08)',fill:true,tension:.4,pointRadius:3,borderWidth:2},
+    {label:'Клики',data:clicks,borderColor:'#bf5af2',backgroundColor:'rgba(191,90,242,0.08)',fill:true,tension:.4,pointRadius:3,borderWidth:2,yAxisID:'y1'}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tc,font:{size:11},boxWidth:12}}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc,callback:v=>v>=1000?(v/1000)+'K':v}},y1:{position:'right',grid:{drawOnChartArea:false},ticks:{color:tc,callback:v=>v>=1000?(v/1000)+'K':v}}}}});
+  
+  chart2=new Chart(document.getElementById('cL'),{type:'bar',data:{labels:months,datasets:[{label:'Заявки',data:leads,backgroundColor:leads.map(v=>{const mx=Math.max(...leads);return v>=mx*0.7?'#30d158':'rgba(48,209,88,0.5)'}),borderRadius:4,barPercentage:.6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc}}}}});
+  
+  const chSorted=Object.entries(channelAgg).sort((a,b)=>b[1].visitors-a[1].visitors);
+  chart3=new Chart(document.getElementById('cC'),{type:'bar',data:{labels:chSorted.map(c=>c[0]),datasets:[
+    {label:'Посетители (тыс.)',data:chSorted.map(c=>+(c[1].visitors/1000).toFixed(1)),backgroundColor:'#2997ff',borderRadius:3,barPercentage:.7},
+    {label:'Клики (тыс.)',data:chSorted.map(c=>+(c[1].clicks/1000).toFixed(1)),backgroundColor:'#bf5af2',borderRadius:3,barPercentage:.7}
+  ]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{labels:{color:tc,font:{size:11},boxWidth:12}}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc,font:{size:11}}}}}});
 }
-render();
+
+loadData();
 </script>
 </body>
 </html>
