@@ -15,9 +15,9 @@
   html{scroll-behavior:smooth;font-size:16px}
   body{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:#000;color:var(--white);overflow-x:hidden;-webkit-font-smoothing:antialiased}
   nav{position:fixed;top:0;left:0;right:0;z-index:1000;backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);background:rgba(0,0,0,0.72);border-bottom:0.5px solid rgba(255,255,255,0.08);transition:all .4s}
-  .nav-inner{max-width:1200px;margin:0 auto;padding:0 2rem;height:52px;display:flex;align-items:center;justify-content:space-between}
-  .nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;color:var(--white);text-decoration:none}
-  .nav-logo .logo-img{height:28px;width:auto;border-radius:6px;background:#fff;padding:3px 8px;object-fit:contain}
+  .nav-inner{max-width:1200px;margin:0 auto;padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between}
+  .nav-logo{display:flex;align-items:center;text-decoration:none}
+  .nav-logo .logo-img{height:38px;width:auto;border-radius:10px;background:#fff;padding:4px 12px;object-fit:contain}
   .nav-links{display:flex;gap:2rem;list-style:none}
   .nav-links a{color:var(--gray-400);text-decoration:none;font-size:.82rem;font-weight:400;transition:color .3s}
   .nav-links a:hover{color:var(--white)}
@@ -95,23 +95,22 @@
   .orb-1{width:400px;height:400px;background:rgba(0,113,227,0.2);top:20%;right:-10%;animation:float 8s ease-in-out infinite}
   .orb-2{width:300px;height:300px;background:rgba(191,90,242,0.15);bottom:10%;left:-5%;animation:float 10s ease-in-out infinite reverse}
   @keyframes float{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-30px)}}
-  /* Hero logo - white pill background */
-  .logo-placeholder{width:auto;min-width:200px;height:80px;border-radius:22px;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 2rem;box-shadow:0 20px 60px rgba(0,113,227,0.25),0 0 0 1px rgba(255,255,255,0.1);opacity:0;animation:fadeUp 1s ease .1s forwards;position:relative;overflow:hidden;padding:12px 24px}
+  .logo-placeholder{width:auto;min-width:280px;height:100px;border-radius:24px;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 2rem;box-shadow:0 20px 60px rgba(0,113,227,0.25),0 0 0 1px rgba(255,255,255,0.1);opacity:0;animation:fadeUp 1s ease .1s forwards;position:relative;overflow:hidden;padding:16px 32px}
   .logo-placeholder::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent 40%,rgba(255,255,255,0.4) 50%,transparent 60%);animation:shine 3s ease-in-out infinite}
-  .logo-placeholder img{height:48px;width:auto;object-fit:contain;position:relative;z-index:1}
+  .logo-placeholder img{height:60px;width:auto;object-fit:contain;position:relative;z-index:1}
   @keyframes shine{0%,100%{transform:translateX(-100%)}50%{transform:translateX(100%)}}
-  .logo-ring{position:absolute;width:250px;height:110px;border-radius:30px;border:1px solid rgba(0,113,227,0.15);top:50%;left:50%;transform:translate(-50%,-50%);animation:pulseRing 3s ease-in-out infinite}
+  .logo-ring{position:absolute;width:320px;height:130px;border-radius:32px;border:1px solid rgba(0,113,227,0.15);top:50%;left:50%;transform:translate(-50%,-50%);animation:pulseRing 3s ease-in-out infinite}
   @keyframes pulseRing{0%,100%{opacity:.3;transform:translate(-50%,-50%) scale(1)}50%{opacity:0;transform:translate(-50%,-50%) scale(1.3)}}
   .logo-container{position:relative;display:inline-block}
   @media(max-width:768px){.features-grid,.steps-grid,.screen-grid{grid-template-columns:1fr}.chart-area{grid-column:span 1}.stats-row{flex-direction:column;gap:2.5rem}.nav-links{display:none}.hero{padding:7rem 1.5rem 4rem}}
 </style>
 </head>
 <body>
-<nav><div class="nav-inner"><a href="#" class="nav-logo"><img src="logo.png" alt="Ustabor" class="logo-img">Ustabor</a><ul class="nav-links"><li><a href="#features">Возможности</a></li><li><a href="#how">Как работает</a></li><li><a href="#stats">Результаты</a></li><li><a href="#cta" class="nav-cta">Начать</a></li></ul></div></nav>
+<nav><div class="nav-inner"><a href="#" class="nav-logo"><img src="logo.png" alt="Ustabor" class="logo-img"></a><ul class="nav-links"><li><a href="#features">Возможности</a></li><li><a href="#how">Как работает</a></li><li><a href="#stats">Результаты</a></li><li><a href="#cta" class="nav-cta">Начать</a></li></ul></div></nav>
 <section class="hero">
   <div class="glow-orb orb-1"></div><div class="glow-orb orb-2"></div>
   <div class="logo-container"><div class="logo-ring"></div><div class="logo-placeholder"><img src="logo.png" alt="Ustabor"></div></div>
-  <p class="hero-overline">Ustabor · AI CEO Аналитика</p>
+  <p class="hero-overline">AI CEO Аналитика</p>
   <h1>Управляйте<br>бизнесом с<br><span class="gradient-text">AI интеллектом</span></h1>
   <p class="hero-sub">Платформа нового поколения для руководителей. Искусственный интеллект анализирует ваши данные и принимает решения на уровне CEO.</p>
   <div class="hero-buttons"><a href="#cta" class="btn-primary">Попробовать бесплатно</a><a href="#how" class="btn-secondary">Узнать больше <span>→</span></a></div>
