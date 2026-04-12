@@ -7,56 +7,63 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:#0a0a0f;color:#fff;-webkit-font-smoothing:antialiased}
-  nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:#fff;border-bottom:1px solid rgba(0,0,0,0.08)}
-  .nav-inner{max-width:1200px;margin:0 auto;padding:0 2rem;height:72px;display:flex;align-items:center;justify-content:space-between}
-  .nav-logo{display:flex;align-items:center;text-decoration:none}
-  .nav-logo .logo-img{height:44px;width:auto;object-fit:contain}
-  .nav-links{display:flex;gap:2rem;list-style:none;align-items:center}
-  .nav-links a{color:#6e6e73;text-decoration:none;font-size:.9rem;font-weight:500}
-  .nav-links a:hover{color:#1d1d1f}
-  .nav-cta{padding:10px 24px;background:#0071e3;color:#fff!important;border-radius:980px;font-size:.9rem!important;font-weight:500!important}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:#0a0a0f;color:#fff;-webkit-font-smoothing:antialiased}
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:#fff;border-bottom:1px solid rgba(0,0,0,0.08)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 2rem;height:72px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;text-decoration:none}
+.logo-img{height:44px;width:auto;object-fit:contain}
+.nav-links{display:flex;gap:2rem;list-style:none;align-items:center}
+.nav-links a{color:#6e6e73;text-decoration:none;font-size:.9rem;font-weight:500}
+.nav-cta{padding:10px 24px;background:#0071e3;color:#fff!important;border-radius:980px}
 
-  .tabs-bar{position:fixed;top:72px;left:0;right:0;z-index:999;background:#111118;border-bottom:1px solid rgba(255,255,255,0.06)}
-  .tabs-inner{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;gap:0}
-  .tab{padding:14px 24px;font-size:.85rem;font-weight:500;color:#6e6e73;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
-  .tab:hover{color:#fff}
-  .tab.active{color:#2997ff;border-bottom-color:#2997ff}
+.tabs-bar{position:fixed;top:72px;left:0;right:0;z-index:999;background:#111118;border-bottom:1px solid rgba(255,255,255,0.06)}
+.tabs-inner{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;gap:0}
+.tab{padding:14px 24px;font-size:.85rem;font-weight:500;color:#6e6e73;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.tab:hover{color:#fff}
+.tab.active{color:#2997ff;border-bottom-color:#2997ff}
 
-  .content{max-width:1200px;margin:0 auto;padding:160px 2rem 4rem}
+.content{max-width:1200px;margin:0 auto;padding:152px 2rem 3rem}
 
-  .report-header{margin-bottom:2.5rem}
-  .report-header h1{font-size:2rem;font-weight:700;letter-spacing:-0.03em;margin-bottom:.5rem}
-  .report-header p{color:#6e6e73;font-size:.95rem}
+.report-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+.report-header h1{font-size:1.8rem;font-weight:700;letter-spacing:-0.03em}
+.report-header p{color:#6e6e73;font-size:.9rem;margin-top:.3rem}
 
-  .metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2.5rem}
-  .metric-card{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:1.5rem}
-  .metric-card .label{font-size:.75rem;color:#6e6e73;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem}
-  .metric-card .value{font-size:1.8rem;font-weight:700;letter-spacing:-0.03em}
-  .metric-card .change{font-size:.8rem;margin-top:.3rem;font-weight:500}
-  .metric-card .change.up{color:#30d158}
-  .metric-card .change.down{color:#ff453a}
-  .v-blue{color:#2997ff}.v-purple{color:#bf5af2}.v-green{color:#30d158}.v-amber{color:#ff9f0a}
+.filters{display:flex;gap:.5rem;align-items:center}
+.yr-btn{padding:8px 18px;border-radius:980px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#6e6e73;font-size:.82rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:inherit}
+.yr-btn:hover{border-color:rgba(255,255,255,0.3);color:#fff}
+.yr-btn.active{background:#2997ff;border-color:#2997ff;color:#fff}
 
-  .charts-grid{display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;margin-bottom:2.5rem}
-  .chart-box{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:1.5rem}
-  .chart-box h3{font-size:1rem;font-weight:600;margin-bottom:1rem;letter-spacing:-0.02em}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.5rem}
+.mc{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.2rem}
+.mc .l{font-size:.7rem;color:#6e6e73;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem}
+.mc .v{font-size:1.6rem;font-weight:700;letter-spacing:-0.03em}
+.mc .c{font-size:.75rem;margin-top:.2rem;color:#30d158;font-weight:500}
+.vb{color:#2997ff}.vp{color:#bf5af2}.vg{color:#30d158}.va{color:#ff9f0a}
 
-  .table-box{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:1.5rem;overflow-x:auto}
-  .table-box h3{font-size:1rem;font-weight:600;margin-bottom:1rem}
-  table{width:100%;border-collapse:collapse;font-size:.82rem}
-  th{text-align:left;padding:10px 12px;color:#6e6e73;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.06);white-space:nowrap}
-  td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.03);white-space:nowrap}
-  tr:hover td{background:rgba(255,255,255,0.02)}
-  .num{text-align:right;font-variant-numeric:tabular-nums}
+.charts-row{display:grid;grid-template-columns:3fr 2fr;gap:.8rem;margin-bottom:.8rem}
+.cb{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.2rem}
+.cb h3{font-size:.85rem;font-weight:600;margin-bottom:.8rem}
+.chart-wrap{position:relative;height:220px}
 
-  @media(max-width:900px){.metrics-grid{grid-template-columns:repeat(2,1fr)}.charts-grid{grid-template-columns:1fr}}
-  @media(max-width:600px){.metrics-grid{grid-template-columns:1fr}.tabs-inner{overflow-x:auto}.nav-links{display:none}}
+.tb{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.2rem;overflow-x:auto;margin-bottom:.8rem}
+.tb h3{font-size:.85rem;font-weight:600;margin-bottom:.8rem}
+table{width:100%;border-collapse:collapse;font-size:.78rem}
+th{text-align:left;padding:8px 10px;color:#6e6e73;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.06);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.03);white-space:nowrap}
+tr:hover td{background:rgba(255,255,255,0.02)}
+.n{text-align:right;font-variant-numeric:tabular-nums}
+.total td{font-weight:600;border-top:2px solid rgba(255,255,255,0.1)}
+
+.placeholder{text-align:center;padding:6rem 2rem;color:#6e6e73}
+.placeholder h1{margin-bottom:.5rem}
+
+@media(max-width:900px){.metrics-grid{grid-template-columns:repeat(2,1fr)}.charts-row{grid-template-columns:1fr}}
+@media(max-width:600px){.metrics-grid{grid-template-columns:1fr}.tabs-inner{overflow-x:auto}.nav-links{display:none}.report-header{flex-direction:column}}
 </style>
 </head>
 <body>
-<nav><div class="nav-inner"><a href="#" class="nav-logo"><img src="logo.png" alt="Ustabor" class="logo-img"></a><ul class="nav-links"><li><a href="#cta" class="nav-cta">Начать</a></li></ul></div></nav>
+<nav><div class="nav-inner"><a href="#" class="nav-logo"><img src="logo.png" alt="Ustabor" class="logo-img"></a><ul class="nav-links"><li><a href="#" class="nav-cta">Начать</a></li></ul></div></nav>
 
 <div class="tabs-bar"><div class="tabs-inner">
   <div class="tab active" onclick="showTab(0)">Трафик сайта</div>
@@ -67,124 +74,110 @@
 
 <div class="content" id="tab-0">
   <div class="report-header">
-    <h1>Трафик сайта — 2024</h1>
-    <p>Данные по посещаемости, кликам и заявкам за Январь — Август 2024</p>
-  </div>
-
-  <div class="metrics-grid">
-    <div class="metric-card"><div class="label">Посетители</div><div class="value v-blue">338K</div><div class="change up">Янв–Авг 2024</div></div>
-    <div class="metric-card"><div class="label">Клики на контакты</div><div class="value v-purple">39.1K</div><div class="change up">↑ по каналам</div></div>
-    <div class="metric-card"><div class="label">Заявки</div><div class="value v-green">1 150</div><div class="change up">↑ рост с июня</div></div>
-    <div class="metric-card"><div class="label">Ср. конверсия</div><div class="value v-amber">11.6%</div><div class="change up">клики/посетители</div></div>
-  </div>
-
-  <div class="charts-grid">
-    <div class="chart-box">
-      <h3>Посетители и клики по месяцам</h3>
-      <canvas id="visitorsChart" height="260"></canvas>
-    </div>
-    <div class="chart-box">
-      <h3>Заявки по месяцам</h3>
-      <canvas id="leadsChart" height="260"></canvas>
+    <div><h1>Трафик сайта — <span id="yr-title">2024</span></h1><p id="yr-sub">Январь — Август 2024</p></div>
+    <div class="filters">
+      <button class="yr-btn" onclick="setYear(2023)">2023</button>
+      <button class="yr-btn active" onclick="setYear(2024)">2024</button>
     </div>
   </div>
 
-  <div class="table-box">
-    <h3>Помесячная сводка — 2024</h3>
-    <table>
-      <thead><tr><th>Месяц</th><th class="num">Посетители</th><th class="num">Клики</th><th class="num">Заявки</th><th class="num">Конверсия</th></tr></thead>
-      <tbody>
-        <tr><td>Январь</td><td class="num">66 261</td><td class="num">3 838</td><td class="num">97</td><td class="num">5,94%</td></tr>
-        <tr><td>Февраль</td><td class="num">33 393</td><td class="num">3 443</td><td class="num">100</td><td class="num">10,61%</td></tr>
-        <tr><td>Март</td><td class="num">37 137</td><td class="num">4 114</td><td class="num">121</td><td class="num">11,40%</td></tr>
-        <tr><td>Апрель</td><td class="num">46 858</td><td class="num">4 045</td><td class="num">120</td><td class="num">8,89%</td></tr>
-        <tr><td>Май</td><td class="num">39 330</td><td class="num">4 304</td><td class="num">120</td><td class="num">11,25%</td></tr>
-        <tr><td>Июнь</td><td class="num">36 493</td><td class="num">7 071</td><td class="num">213</td><td class="num">19,96%</td></tr>
-        <tr><td>Июль</td><td class="num">41 682</td><td class="num">6 398</td><td class="num">185</td><td class="num">15,79%</td></tr>
-        <tr><td>Август</td><td class="num">36 906</td><td class="num">5 908</td><td class="num">194</td><td class="num">16,50%</td></tr>
-        <tr style="font-weight:600;border-top:2px solid rgba(255,255,255,0.1)"><td>Итого</td><td class="num" style="color:#2997ff">338 060</td><td class="num" style="color:#bf5af2">39 121</td><td class="num" style="color:#30d158">1 150</td><td class="num" style="color:#ff9f0a">11,57%</td></tr>
-      </tbody>
-    </table>
+  <div class="metrics-grid" id="metrics"></div>
+  <div class="charts-row">
+    <div class="cb"><h3>Посетители и клики по месяцам</h3><div class="chart-wrap"><canvas id="cVisitors"></canvas></div></div>
+    <div class="cb"><h3>Заявки по месяцам</h3><div class="chart-wrap"><canvas id="cLeads"></canvas></div></div>
   </div>
-
-  <div class="charts-grid" style="margin-top:1.5rem">
-    <div class="chart-box" style="grid-column:span 2">
-      <h3>Разбивка по каналам — средние за 2024</h3>
-      <canvas id="channelsChart" height="180"></canvas>
-    </div>
-  </div>
+  <div class="tb"><h3>Помесячная сводка</h3><div id="tableWrap"></div></div>
+  <div class="cb"><h3>Каналы — средние показатели</h3><div class="chart-wrap"><canvas id="cChannels"></canvas></div></div>
 </div>
 
-<div class="content" id="tab-1" style="display:none">
-  <div class="report-header"><h1>Каналы</h1><p>Скоро будет добавлен детальный отчёт по каналам</p></div>
-</div>
-<div class="content" id="tab-2" style="display:none">
-  <div class="report-header"><h1>Направления</h1><p>Скоро будет добавлен отчёт по направлениям</p></div>
-</div>
-<div class="content" id="tab-3" style="display:none">
-  <div class="report-header"><h1>Приложение</h1><p>Скоро будет добавлен трафик приложения</p></div>
-</div>
+<div class="content" id="tab-1" style="display:none"><div class="placeholder"><h1>Каналы</h1><p>Скоро будет добавлен</p></div></div>
+<div class="content" id="tab-2" style="display:none"><div class="placeholder"><h1>Направления</h1><p>Скоро будет добавлен</p></div></div>
+<div class="content" id="tab-3" style="display:none"><div class="placeholder"><h1>Приложение</h1><p>Скоро будет добавлен</p></div></div>
 
 <script>
 function showTab(n){
-  document.querySelectorAll('.tab').forEach((t,i)=>{t.classList.toggle('active',i===n)});
-  for(let i=0;i<4;i++){const el=document.getElementById('tab-'+i);if(el)el.style.display=i===n?'block':'none'}
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  for(let i=0;i<4;i++){const e=document.getElementById('tab-'+i);if(e)e.style.display=i===n?'block':'none'}
 }
 
-const months=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг'];
-const visitors=[66261,33393,37137,46858,39330,36493,41682,36906];
-const clicks=[3838,3443,4114,4045,4304,7071,6398,5908];
-const leads=[97,100,121,120,120,213,185,194];
-
-const gridColor='rgba(255,255,255,0.04)';
-const tickColor='#6e6e73';
-
-new Chart(document.getElementById('visitorsChart'),{
-  type:'line',
-  data:{
-    labels:months,
-    datasets:[
-      {label:'Посетители',data:visitors,borderColor:'#2997ff',backgroundColor:'rgba(41,151,255,0.1)',fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'#2997ff'},
-      {label:'Клики',data:clicks,borderColor:'#bf5af2',backgroundColor:'rgba(191,90,242,0.1)',fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'#bf5af2',yAxisID:'y1'}
-    ]
+const DATA={
+  2024:{
+    months:['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг'],
+    visitors:[66261,33393,37137,46858,39330,36493,41682,36906],
+    clicks:[3838,3443,4114,4045,4304,7071,6398,5908],
+    leads:[97,100,121,120,120,213,185,194],
+    conv:['5,94%','10,61%','11,40%','8,89%','11,25%','19,96%','15,79%','16,50%'],
+    mNames:['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август'],
+    period:'Январь — Август 2024',
+    channels:['Organic','Direct','Paid Search','Display Paid','Social','Referal','Other','SMS'],
+    chVisitors:[31330,7726,1493,481,481,511,109,28],
+    chClicks:[3668,620,519,16,13,17,6,0],
+    chLeads:[91,21,20,1,1,0.4,1.4,0]
   },
-  options:{
-    responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{labels:{color:tickColor,font:{size:12}}}},
-    scales:{
-      x:{grid:{color:gridColor},ticks:{color:tickColor}},
-      y:{position:'left',grid:{color:gridColor},ticks:{color:tickColor,callback:v=>(v/1000)+'K'}},
-      y1:{position:'right',grid:{drawOnChartArea:false},ticks:{color:tickColor,callback:v=>(v/1000)+'K'}}
-    }
+  2023:{
+    months:['Ноя','Дек'],
+    visitors:[32445,26627],
+    clicks:[3906,4702],
+    leads:[166,122],
+    conv:['12,55%','18,12%'],
+    mNames:['Ноябрь','Декабрь'],
+    period:'Ноябрь — Декабрь 2023',
+    channels:['Organic','Direct','Paid Search','Display Paid','Social','Other','Referal'],
+    chVisitors:[21081,3147,2395,1510,938,56,410],
+    chClicks:[3199,422,552,48,46,10,29],
+    chLeads:[107,7,30,0,0,1,1]
   }
-});
+};
 
-new Chart(document.getElementById('leadsChart'),{
-  type:'bar',
-  data:{labels:months,datasets:[{label:'Заявки',data:leads,backgroundColor:leads.map(v=>v>150?'#30d158':'rgba(48,209,88,0.5)'),borderRadius:6}]},
-  options:{
-    responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false}},
-    scales:{x:{grid:{color:gridColor},ticks:{color:tickColor}},y:{grid:{color:gridColor},ticks:{color:tickColor}}}
-  }
-});
+let curYear=2024, chart1=null, chart2=null, chart3=null;
+const gc='rgba(255,255,255,0.04)', tc='#6e6e73';
 
-new Chart(document.getElementById('channelsChart'),{
-  type:'bar',
-  data:{
-    labels:['Organic','Direct','Paid Search','Display Paid','Social','Referal','Other'],
-    datasets:[
-      {label:'Посетители (тыс.)',data:[31.7,7.5,1.5,0.5,0.5,0.6,0.1],backgroundColor:'#2997ff',borderRadius:4},
-      {label:'Клики (тыс.)',data:[3.6,0.6,0.5,0.03,0.01,0.02,0.006],backgroundColor:'#bf5af2',borderRadius:4},
-      {label:'Заявки',data:[91,21,20,1,1,0.5,1.4],backgroundColor:'#30d158',borderRadius:4}
-    ]
-  },
-  options:{
-    responsive:true,maintainAspectRatio:false,indexAxis:'y',
-    plugins:{legend:{labels:{color:tickColor,font:{size:12}}}},
-    scales:{x:{grid:{color:gridColor},ticks:{color:tickColor}},y:{grid:{color:gridColor},ticks:{color:tickColor}}}
-  }
-});
+function fmt(n){return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,' ')}
+
+function setYear(y){
+  curYear=y;
+  document.querySelectorAll('.yr-btn').forEach(b=>b.classList.toggle('active',b.textContent==y));
+  render();
+}
+
+function render(){
+  const d=DATA[curYear];
+  document.getElementById('yr-title').textContent=curYear;
+  document.getElementById('yr-sub').textContent=d.period;
+  const tv=d.visitors.reduce((a,b)=>a+b,0);
+  const tc2=d.clicks.reduce((a,b)=>a+b,0);
+  const tl=d.leads.reduce((a,b)=>a+b,0);
+  const cv=((tc2/tv)*100).toFixed(1);
+  document.getElementById('metrics').innerHTML=`
+    <div class="mc"><div class="l">Посетители</div><div class="v vb">${tv>1000?(tv/1000).toFixed(0)+'K':tv}</div><div class="c">${d.period}</div></div>
+    <div class="mc"><div class="l">Клики на контакты</div><div class="v vp">${tc2>1000?(tc2/1000).toFixed(1)+'K':tc2}</div><div class="c">по всем каналам</div></div>
+    <div class="mc"><div class="l">Заявки</div><div class="v vg">${fmt(tl)}</div><div class="c">${d.months.length} мес.</div></div>
+    <div class="mc"><div class="l">Ср. конверсия</div><div class="v va">${cv}%</div><div class="c">клики / посетители</div></div>`;
+
+  let html='<table><thead><tr><th>Месяц</th><th class="n">Посетители</th><th class="n">Клики</th><th class="n">Заявки</th><th class="n">Конверсия</th></tr></thead><tbody>';
+  d.mNames.forEach((m,i)=>{html+=`<tr><td>${m}</td><td class="n">${fmt(d.visitors[i])}</td><td class="n">${fmt(d.clicks[i])}</td><td class="n">${d.leads[i]}</td><td class="n">${d.conv[i]}</td></tr>`});
+  html+=`<tr class="total"><td>Итого</td><td class="n" style="color:#2997ff">${fmt(tv)}</td><td class="n" style="color:#bf5af2">${fmt(tc2)}</td><td class="n" style="color:#30d158">${fmt(tl)}</td><td class="n" style="color:#ff9f0a">${cv}%</td></tr></tbody></table>`;
+  document.getElementById('tableWrap').innerHTML=html;
+
+  if(chart1)chart1.destroy();
+  if(chart2)chart2.destroy();
+  if(chart3)chart3.destroy();
+
+  const opts=(yL,yR)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tc,font:{size:11},boxWidth:12}}},scales:{x:{grid:{color:gc},ticks:{color:tc,font:{size:11}}},y:{position:'left',grid:{color:gc},ticks:{color:tc,font:{size:11},callback:v=>v>=1000?(v/1000)+'K':v}},y1:{display:!!yR,position:'right',grid:{drawOnChartArea:false},ticks:{color:tc,font:{size:11},callback:v=>v>=1000?(v/1000)+'K':v}}}});
+
+  chart1=new Chart(document.getElementById('cVisitors'),{type:'line',data:{labels:d.months,datasets:[
+    {label:'Посетители',data:d.visitors,borderColor:'#2997ff',backgroundColor:'rgba(41,151,255,0.08)',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:'#2997ff',borderWidth:2},
+    {label:'Клики',data:d.clicks,borderColor:'#bf5af2',backgroundColor:'rgba(191,90,242,0.08)',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:'#bf5af2',borderWidth:2,yAxisID:'y1'}
+  ]},options:opts(true,true)});
+
+  chart2=new Chart(document.getElementById('cLeads'),{type:'bar',data:{labels:d.months,datasets:[{label:'Заявки',data:d.leads,backgroundColor:d.leads.map(v=>v>150?'#30d158':'rgba(48,209,88,0.5)'),borderRadius:4,barPercentage:.6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gc},ticks:{color:tc,font:{size:11}}},y:{grid:{color:gc},ticks:{color:tc,font:{size:11}}}}}});
+
+  chart3=new Chart(document.getElementById('cChannels'),{type:'bar',data:{labels:d.channels,datasets:[
+    {label:'Посетители (тыс.)',data:d.chVisitors.map(v=>+(v/1000).toFixed(1)),backgroundColor:'#2997ff',borderRadius:3,barPercentage:.7},
+    {label:'Клики (тыс.)',data:d.chClicks.map(v=>+(v/1000).toFixed(1)),backgroundColor:'#bf5af2',borderRadius:3,barPercentage:.7}
+  ]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{labels:{color:tc,font:{size:11},boxWidth:12}}},scales:{x:{grid:{color:gc},ticks:{color:tc,font:{size:11}}},y:{grid:{color:gc},ticks:{color:tc,font:{size:11}}}}}});
+}
+render();
 </script>
 </body>
 </html>
