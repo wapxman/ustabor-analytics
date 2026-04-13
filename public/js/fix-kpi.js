@@ -1,34 +1,67 @@
-// Override: полная Сводка KPI — порядок метрик по ТЗ, Δм для каждого месяца
+// Override: полная Сводка KPI — исправлен маппинг платных/бесплатных кликов
 
 function calcKPI(data) {
   const h = (data.h || []).map(x => String(x || '').trim().toLowerCase());
-  const find = (...kws) => { for (const kw of kws) { const i = h.findIndex(c => c.includes(kw)); if (i >= 0) return i } return -1 };
-  const C = {
-    zayvki: find('заявк'),
-    klPlatn: find('платн'),
-    klBespl: find('бесплатн'),
-    klObsh: find('общие','общ'),
-    regUsers: find('зарегист','регистр','пользовател'),
-    coefClick: find('коэффициент','коэф'),
-    spisZay: find('списан'),
-    spisClick: -1,
-    spisAll: -1,
-    avgPrice: find('средн','цена'),
-    popoln: find('пополн'),
-    otkliki: find('отклик'),
-  };
-  // Списание за клики — ищем второе вхождение "списан"
-  const allSpis = [];
-  h.forEach((c,i) => { if (c.includes('списан')) allSpis.push(i) });
-  if (allSpis.length >= 3) { C.spisZay = allSpis[0]; C.spisClick = allSpis[1]; C.spisAll = allSpis[2] }
-  else if (allSpis.length === 2) { C.spisZay = allSpis[0]; C.spisClick = allSpis[1] }
-  else if (allSpis.length === 1) { C.spisZay = allSpis[0] }
 
-  // Fallback indices
-  if (C.zayvki<0) C.zayvki=3; if (C.otkliki<0) C.otkliki=4;
-  if (C.spisZay<0) C.spisZay=5; if (C.klBespl<0) C.klBespl=6;
-  if (C.klPlatn<0) C.klPlatn=7; if (C.spisClick<0) C.spisClick=8;
-  if (C.klObsh<0) C.klObsh=9;
+  // Умный поиск колонок — сначала бесплатные (более специфичный), потом платные (исключая бесплатные)
+  function findCol(mustInclude, mustExclude) {
+    return h.findIndex(c => {
+      const match = mustInclude.every(kw => c.includes(kw));
+      const excl = mustExclude ? mustExclude.some(kw => c.includes(kw)) : false;
+      return match && !excl;
+    });
+  }
+  function findAny(...keywords) {
+    for (const kw of keywords) { const i = h.findIndex(c => c.includes(kw)); if (i >= 0) return i }
+    return -1;
+  }
+
+  // Маппинг — порядок важен!
+  const C = {
+    zayvki: findAny('заявк'),
+    klBespl: findCol(['бесплатн'], null),                    // сначала бесплатные
+    klPlatn: findCol(['платн'], ['бесплатн']),                // платные НЕ бесплатные
+    klObsh: findCol(['общ', 'клик'], null) >= 0 ? findCol(['общ', 'клик'], null) : findCol(['общие'], null),
+    regUsers: findAny('зарегист', 'регистр', 'пользовател'),
+    coefClick: findAny('коэффициент', 'коэф'),
+    avgPrice: findAny('средн'),
+    popoln: findAny('пополн'),
+    otkliki: findAny('отклик'),
+  };
+
+  // Списания — 3 колонки: за заявки, за клики, всего
+  const allSpis = [];
+  h.forEach((c, i) => { if (c.includes('списан') || c.includes('списание')) allSpis.push(i) });
+  let spisZayIdx = -1, spisClickIdx = -1, spisAllIdx = -1;
+  if (allSpis.length >= 3) {
+    // Пытаемся определить по контексту
+    allSpis.forEach(idx => {
+      const col = h[idx];
+      if (col.includes('заявк')) spisZayIdx = idx;
+      else if (col.includes('клик')) spisClickIdx = idx;
+      else if (col.includes('средств') || col.includes('всего') || col.includes('общ')) spisAllIdx = idx;
+    });
+    // Если не определили — по порядку
+    if (spisZayIdx < 0) spisZayIdx = allSpis[0];
+    if (spisClickIdx < 0) spisClickIdx = allSpis[1];
+    if (spisAllIdx < 0) spisAllIdx = allSpis[2];
+  } else if (allSpis.length === 2) {
+    spisZayIdx = allSpis[0]; spisClickIdx = allSpis[1];
+  } else if (allSpis.length === 1) {
+    spisZayIdx = allSpis[0];
+  }
+  C.spisZay = spisZayIdx;
+  C.spisClick = spisClickIdx;
+  C.spisAll = spisAllIdx;
+
+  // Fallback на жёсткие индексы
+  if (C.zayvki < 0) C.zayvki = 3;
+  if (C.otkliki < 0) C.otkliki = 4;
+  if (C.spisZay < 0) C.spisZay = 5;
+  if (C.klBespl < 0) C.klBespl = 6;
+  if (C.klPlatn < 0) C.klPlatn = 7;
+  if (C.spisClick < 0) C.spisClick = 8;
+  if (C.klObsh < 0) C.klObsh = 9;
 
   let zayvki=0,otkliki=0,klPlatn=0,klBespl=0,klObsh=0,regUsers=0,spisZay=0,spisClick=0,spisAll=0,popoln=0;
   let coefClickSum=0,avgPriceSum=0,rowCount=0;
@@ -69,29 +102,22 @@ function renderKPI() {
   if(kpiSelMonths)fKeys=yearKeys.filter(k=>{const m=parseInt(k.split('-')[1]);return kpiSelMonths.includes(m)});
   if(!fKeys.length){document.getElementById('kpi-dash').innerHTML='<div class="loading">Нет данных</div>';return}
 
-  // Calc per month
   const months=[];
   fKeys.forEach(key=>{const kpi=calcKPI(store[key]);const m=parseInt(key.split('-')[1]);months.push({key,month:m,label:MF[m-1],...kpi})});
 
-  // Also calc previous month for first Δ
-  const prevMonthData = {};
-  months.forEach((m, i) => {
-    if (i === 0) {
-      // Find previous month in store
-      const pm = m.month - 1;
-      const py = pm <= 0 ? kpiYear - 1 : kpiYear;
-      const pmn = pm <= 0 ? 12 : pm;
-      const pk = `${py}-${String(pmn).padStart(2,'0')}`;
-      if (store[pk]) prevMonthData[m.key] = calcKPI(store[pk]);
-    }
-  });
+  // Previous month for first Δ
+  const prevMonthData={};
+  if(months.length){
+    const fm=months[0];const pm=fm.month-1;const py=pm<=0?kpiYear-1:kpiYear;const pmn=pm<=0?12:pm;
+    const pk=`${py}-${String(pmn).padStart(2,'0')}`;
+    if(store[pk])prevMonthData[fm.key]=calcKPI(store[pk]);
+  }
 
   const sum=(f)=>months.reduce((s,m)=>s+m[f],0);
   const tZ=sum('zayvki'),tO=sum('otkliki'),tKO=sum('klObsh'),tSA=sum('spisAll');
 
   document.getElementById('kpi-sub').textContent=MF[avM[0]-1]+' — '+MF[avM[avM.length-1]-1]+' · '+kpiYear;
 
-  // Cards
   let h=`<div class="metrics-grid">
     <div class="mc"><div class="l">Заявки</div><div class="v vb">${fmt(tZ)}</div><div class="c c-neutral">${months.length} мес.</div></div>
     <div class="mc"><div class="l">Отклики</div><div class="v vg">${fmt(tO)}</div><div class="c c-neutral">коэф. ${tZ>0?(tO/tZ).toFixed(2):'-'}</div></div>
@@ -99,22 +125,21 @@ function renderKPI() {
     <div class="mc"><div class="l">Списания</div><div class="v va">${fmtM(tSA)}</div><div class="c c-neutral">сум</div></div>
   </div>`;
 
-  // === PIVOTED TABLE — порядок как в ТЗ ===
-  const metricRows = [
-    {name:'Заявки', key:'zayvki', fmt:'int', bold:true},
-    {name:'Клики на платных', key:'klPlatn', fmt:'int'},
-    {name:'Клики на бесплатных', key:'klBespl', fmt:'int'},
-    {name:'Общие клики', key:'klObsh', fmt:'int', bold:true},
-    {name:'Кол-во зарег. пользователей', key:'regUsers', fmt:'int'},
-    {name:'Коэффициент клика', key:'coefClick', fmt:'dec2'},
-    {name:'Списание за заявки', key:'spisZay', fmt:'money', bold:true},
-    {name:'Списание за клики', key:'spisClick', fmt:'money', bold:true},
-    {name:'Списание средства', key:'spisAll', fmt:'money', bold:true},
-    {name:'Средняя цена клики', key:'avgPrice', fmt:'dec1'},
-    {name:'Пополнения', key:'popoln', fmt:'money'},
-    {name:'Отклики на заявку', key:'otkliki', fmt:'int'},
+  // Pivoted table
+  const metricRows=[
+    {name:'Заявки',key:'zayvki',fmt:'int',bold:true},
+    {name:'Клики на платных',key:'klPlatn',fmt:'int'},
+    {name:'Клики на бесплатных',key:'klBespl',fmt:'int'},
+    {name:'Общие клики',key:'klObsh',fmt:'int',bold:true},
+    {name:'Кол-во зарег. пользователей',key:'regUsers',fmt:'int'},
+    {name:'Коэффициент клика',key:'coefClick',fmt:'dec2'},
+    {name:'Списание за заявки',key:'spisZay',fmt:'money',bold:true},
+    {name:'Списание за клики',key:'spisClick',fmt:'money',bold:true},
+    {name:'Списание средства',key:'spisAll',fmt:'money',bold:true},
+    {name:'Средняя цена клики',key:'avgPrice',fmt:'dec1'},
+    {name:'Пополнения',key:'popoln',fmt:'money'},
+    {name:'Отклики на заявку',key:'otkliki',fmt:'int'},
   ];
-
   function fmtV(v,f){
     if(f==='dec2')return v.toFixed(2);
     if(f==='dec1')return v.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
@@ -125,31 +150,25 @@ function renderKPI() {
   h+=`<div class="tb"><h3>KPI — ${kpiYear}</h3><div style="overflow-x:auto"><table class="kpi-tbl"><thead><tr><th style="min-width:200px;position:sticky;left:0;background:#16161e;z-index:2">Показатель</th>`;
   months.forEach(m=>{h+=`<th class="n">${m.label}</th><th class="n" style="font-size:.65rem;color:#6e6e73">Δм</th>`});
   h+=`</tr></thead><tbody>`;
-
   metricRows.forEach(mr=>{
     h+=`<tr><td style="font-weight:${mr.bold?'600':'400'};position:sticky;left:0;background:#16161e;z-index:1;font-size:.75rem">${mr.name}</td>`;
     months.forEach((m,i)=>{
       const v=m[mr.key]||0;
       h+=`<td class="n" style="${mr.bold?'font-weight:600':''}">${fmtV(v,mr.fmt)}</td>`;
-      // Delta — для КАЖДОГО месяца включая первый
       let prev=null;
-      if(i>0) prev=months[i-1][mr.key]||0;
-      else if(prevMonthData[m.key]) prev=prevMonthData[m.key][mr.key]||0;
-
-      if(prev!==null && prev!==0){
+      if(i>0)prev=months[i-1][mr.key]||0;
+      else if(prevMonthData[m.key])prev=prevMonthData[m.key][mr.key]||0;
+      if(prev!==null&&prev!==0){
         const delta=((v-prev)/prev*100).toFixed(1);
         const cls=delta>0?'up':delta<0?'dn':'';
         const sign=delta>0?'+':'';
         h+=`<td class="n"><span class="pch ${cls}">${sign}${delta}%</span></td>`;
-      } else {
-        h+=`<td class="n"></td>`;
-      }
+      }else{h+=`<td class="n"></td>`}
     });
     h+=`</tr>`;
   });
   h+=`</tbody></table></div></div>`;
 
-  // Charts
   const lb=months.map(m=>m.label);
   h+=`<div class="charts-row">
     <div class="cb"><h3>Заявки и отклики</h3><div class="chart-wrap"><canvas id="kpiC1"></canvas></div></div>
@@ -161,7 +180,6 @@ function renderKPI() {
   </div>`;
 
   document.getElementById('kpi-dash').innerHTML=h;
-
   if(kC1)kC1.destroy();if(kC2)kC2.destroy();
   kC1=new Chart(document.getElementById('kpiC1'),{type:'bar',data:{labels:lb,datasets:[
     {label:'Заявки',data:months.map(m=>m.zayvki),backgroundColor:'#2997ff',borderRadius:3},
