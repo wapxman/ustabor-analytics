@@ -1,18 +1,13 @@
 // Ustabor Plugin System — автозагрузка
-// Этот скрипт подгружается через маленький инлайн-тег в index.html
-// Плагины загружаются автоматически из списка PLUGINS ниже
-
-// === СПИСОК ПЛАГИНОВ — добавляйте новые сюда ===
 const PLUGINS = [
-  'js/tab-example.js'
-  // 'js/tab-masters.js',
+  'js/tab-masters-data.js',
+  'js/tab-masters.js'
+  // Добавляйте новые плагины сюда:
   // 'js/tab-finance.js',
 ];
 
 (function() {
   const pluginRenders = {};
-
-  // Переопределяем showTab для поддержки плагинов
   window.showTab = function(n) {
     document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === n));
     document.querySelectorAll('.content').forEach(c => c.classList.remove('visible'));
@@ -28,8 +23,6 @@ const PLUGINS = [
     } catch(e) {}
     if (pluginRenders[n]) pluginRenders[n](el);
   };
-
-  // Функция добавления вкладки
   window.addTab = function(cfg) {
     const tabBar = document.querySelector('.tabs-inner');
     const idx = tabBar.children.length;
@@ -47,14 +40,6 @@ const PLUGINS = [
     if (cfg.init) cfg.init(div);
     return idx;
   };
-
-  // Утилиты для плагинов
   window.U = { fmt, fmtM, pN, pctCh, parseCSV, MS, MF, CHCOL, gc: 'rgba(255,255,255,0.04)', tc: '#6e6e73' };
-
-  // Автозагрузка плагинов
-  PLUGINS.forEach(src => {
-    const s = document.createElement('script');
-    s.src = src;
-    document.body.appendChild(s);
-  });
+  PLUGINS.forEach(src => { const s = document.createElement('script'); s.src = src; document.body.appendChild(s) });
 })();
