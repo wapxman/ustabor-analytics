@@ -18,7 +18,6 @@ addTab({
     dz.addEventListener('dragleave', () => dz.classList.remove('over'));
     dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); loadUEFile(e.dataTransfer.files[0]) });
     document.getElementById('ue-input').addEventListener('change', e => { loadUEFile(e.target.files[0]); e.target.value = '' });
-    // Load from localStorage
     try { ueData = JSON.parse(localStorage.getItem('ustabor_ue')); } catch(e) {}
     if (ueData) renderUE();
   },
@@ -47,7 +46,9 @@ async function loadUEFile(file) {
     for (let i = 1; i <= months.length; i++) values.push(typeof row[i] === 'number' ? row[i] : parseFloat(String(row[i]||'0').replace(/\s/g,'').replace(',','.'))||0);
     const total = typeof row[months.length+1] === 'number' ? row[months.length+1] : values.reduce((s,v)=>s+v,0);
     const comment = row[months.length+2] ? String(row[months.length+2]).trim() : '';
-    metrics.push({ name, values, total, comment });
+    // Определяем: это деньги ($) или количество
+    const isMoney = name.includes('$') || name.includes('ARPU') || name.includes('CAC') || name.includes('CPA') || name.includes('COGS');
+    metrics.push({ name, values, total, comment, isMoney });
   }
   ueData = { months, metrics, file: file.name };
   localStorage.setItem('ustabor_ue', JSON.stringify(ueData));
@@ -61,12 +62,17 @@ function fmtUE(v) {
   return Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g,' ');
 }
 
+function fmtUECell(v, isMoney) {
+  const prefix = isMoney ? '$' : '';
+  if (v < 0) return '-' + prefix + fmtUE(Math.abs(v));
+  return prefix + fmtUE(v);
+}
+
 function renderUE() {
   if (!ueData || !ueData.metrics) return;
   const {months, metrics} = ueData;
   document.getElementById('ue-sub').textContent = months[0] + ' – ' + months[months.length-1] + ' · ' + (ueData.file||'');
 
-  // Find key metrics by index
   const mRevenue = metrics.find(m => m.name.includes('Выручка'));
   const mEBITDA = metrics.find(m => m.name.includes('EBITDA'));
   const mGross = metrics.find(m => m.name.includes('Валовая'));
@@ -78,16 +84,14 @@ function renderUE() {
   const mTrueMargin = metrics.find(m => m.name.includes('Истинная'));
   const mOPEX = metrics.find(m => m.name.includes('OPEX'));
 
-  // Metrics cards
   const last = months.length - 1;
   let h = `<div class="metrics-grid">`;
   if (mRevenue) h += `<div class="mc"><div class="l">Выручка</div><div class="v vb">$${fmtUE(mRevenue.total)}</div><div class="c c-neutral">за период</div></div>`;
   if (mGross) h += `<div class="mc"><div class="l">Валовая прибыль</div><div class="v vg">$${fmtUE(mGross.total)}</div><div class="c c-neutral">${mRevenue?((mGross.total/mRevenue.total*100).toFixed(0)+'% маржа'):''}</div></div>`;
-  if (mEBITDA) h += `<div class="mc"><div class="l">EBITDA</div><div class="v ${mEBITDA.total>=0?'vg':'va'}">$${fmtUE(mEBITDA.total)}</div><div class="c c-neutral">burn rate</div></div>`;
+  if (mEBITDA) h += `<div class="mc"><div class="l">EBITDA</div><div class="v ${mEBITDA.total>=0?'vg':'va'}">${fmtUECell(mEBITDA.total, true)}</div><div class="c c-neutral">burn rate</div></div>`;
   if (mCAC) h += `<div class="mc"><div class="l">CAC мастера (сред.)</div><div class="v vp">$${fmtUE(mCAC.total/months.length)}</div></div>`;
   h += `</div>`;
 
-  // Second row
   h += `<div class="metrics-grid">`;
   if (mARPU) h += `<div class="mc"><div class="l">ARPU (последний мес.)</div><div class="v vb">$${mARPU.values[last].toFixed(2)}</div><div class="c c-up">↑ ${((mARPU.values[last]/mARPU.values[0]-1)*100).toFixed(0)}% за период</div></div>`;
   if (mCPA) h += `<div class="mc"><div class="l">CPA (средний)</div><div class="v vp">$${(mCPA.total/months.length).toFixed(2)}</div></div>`;
@@ -101,7 +105,7 @@ function renderUE() {
   h += `<div class="cb"><h3>CAC / CPA / ARPU</h3><div class="chart-wrap-tall"><canvas id="ueC2"></canvas></div></div></div>`;
   h += `<div class="cb"><h3>Маржинальность</h3><div class="chart-wrap"><canvas id="ueC3"></canvas></div></div>`;
 
-  // Full table
+  // Table — с правильными $ только для денежных метрик
   h += `<div class="tb"><h3>Unit-экономика — детали</h3><div style="overflow-x:auto"><table><thead><tr><th style="min-width:280px;position:sticky;left:0;background:#16161e;z-index:1">Метрика</th>`;
   months.forEach(m => { h += `<th class="n">${m.replace(/\s*\d{4}/,'')}</th>` });
   h += `<th class="n" style="font-weight:700">ИТОГО</th></tr></thead><tbody>`;
@@ -113,14 +117,14 @@ function renderUE() {
     h += `<td style="font-weight:${isHL?'600':'400'};min-width:280px;position:sticky;left:0;background:${isHL?'#1a1a2e':'#16161e'};z-index:1;font-size:.75rem" title="${m.comment||''}">${m.name}${m.comment?' 💬':''}</td>`;
     m.values.forEach(v => {
       const color = isNeg && v < 0 ? 'color:#ff453a' : isHL ? 'color:#fff' : '';
-      h += `<td class="n" style="${color}">${v < 0 ? '-' : ''}$${fmtUE(Math.abs(v))}</td>`;
+      h += `<td class="n" style="${color}">${fmtUECell(v, m.isMoney)}</td>`;
     });
     const tc2 = isNeg && m.total < 0 ? 'color:#ff453a;font-weight:700' : 'font-weight:700';
-    h += `<td class="n" style="${tc2}">${m.total < 0 ? '-' : ''}$${fmtUE(Math.abs(m.total))}</td></tr>`;
+    h += `<td class="n" style="${tc2}">${fmtUECell(m.total, m.isMoney)}</td></tr>`;
   });
   h += `</tbody></table></div></div>`;
 
-  // Comments section
+  // Comments
   const withComments = metrics.filter(m => m.comment);
   if (withComments.length) {
     h += `<div class="cb"><h3>💬 Комментарии</h3>`;
@@ -130,30 +134,25 @@ function renderUE() {
     h += `</div>`;
   }
 
-  // Delete button
   h += `<div style="text-align:center;margin:2rem 0"><button class="f-btn" style="color:#ff453a;border-color:rgba(255,69,58,0.3)" onclick="if(confirm('Удалить?')){localStorage.removeItem('ustabor_ue');ueData=null;document.getElementById('ue-dash').innerHTML=''}">🗑️ Очистить данные</button></div>`;
 
   document.getElementById('ue-dash').innerHTML = h;
 
-  // Render charts
   if (ueC1) ueC1.destroy(); if (ueC2) ueC2.destroy(); if (ueC3) ueC3.destroy();
   const gc2 = 'rgba(255,255,255,0.04)', tc2 = '#6e6e73';
 
-  // Revenue vs OPEX vs EBITDA
   const ds1 = [];
   if (mRevenue) ds1.push({label:'Выручка',data:mRevenue.values,borderColor:'#30d158',backgroundColor:'rgba(48,209,88,0.1)',fill:true,tension:.4,pointRadius:3,borderWidth:2});
   if (mOPEX) ds1.push({label:'OPEX',data:mOPEX.values,borderColor:'#ff453a',backgroundColor:'rgba(255,69,58,0.1)',fill:true,tension:.4,pointRadius:3,borderWidth:2});
   if (mEBITDA) ds1.push({label:'EBITDA',data:mEBITDA.values,borderColor:'#2997ff',tension:.4,pointRadius:3,borderWidth:2,borderDash:[5,3]});
   ueC1 = new Chart(document.getElementById('ueC1'),{type:'line',data:{labels,datasets:ds1},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tc2,boxWidth:12}}},scales:{x:{grid:{color:gc2},ticks:{color:tc2}},y:{grid:{color:gc2},ticks:{color:tc2,callback:v=>'$'+fmtUE(v)}}}}});
 
-  // CAC / CPA / ARPU
   const ds2 = [];
   if (mCAC) ds2.push({label:'CAC мастера',data:mCAC.values,borderColor:'#ff9f0a',tension:.4,pointRadius:3,borderWidth:2});
   if (mCPA) ds2.push({label:'CPA',data:mCPA.values,borderColor:'#bf5af2',tension:.4,pointRadius:3,borderWidth:2});
   if (mARPU) ds2.push({label:'ARPU',data:mARPU.values,borderColor:'#2997ff',tension:.4,pointRadius:3,borderWidth:2});
   ueC2 = new Chart(document.getElementById('ueC2'),{type:'line',data:{labels,datasets:ds2},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tc2,boxWidth:12}}},scales:{x:{grid:{color:gc2},ticks:{color:tc2}},y:{grid:{color:gc2},ticks:{color:tc2,callback:v=>'$'+v.toFixed(1)}}}}});
 
-  // Margin bars
   const ds3 = [];
   if (mGross) ds3.push({label:'Валовая прибыль',data:mGross.values,backgroundColor:'#30d158',borderRadius:3});
   if (mTrueMargin) ds3.push({label:'Истинная маржа',data:mTrueMargin.values,backgroundColor:mTrueMargin.values.map(v=>v>=0?'rgba(41,151,255,0.7)':'rgba(255,69,58,0.7)'),borderRadius:3});
