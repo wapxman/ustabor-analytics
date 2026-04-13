@@ -8,85 +8,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:#0a0a0f;color:#fff;-webkit-font-smoothing:antialiased}
-nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:#fff;border-bottom:1px solid rgba(0,0,0,0.08)}
-.nav-inner{max-width:1200px;margin:0 auto;padding:0 2rem;height:72px;display:flex;align-items:center;justify-content:space-between}
-.nav-logo{display:flex;align-items:center;text-decoration:none}
-.logo-img{height:44px;width:auto;object-fit:contain}
-.nav-links{display:flex;gap:2rem;list-style:none;align-items:center}
-.nav-links a{color:#6e6e73;text-decoration:none;font-size:.9rem;font-weight:500}
-.nav-cta{padding:10px 24px;background:#0071e3;color:#fff!important;border-radius:980px}
-.tabs-bar{position:fixed;top:72px;left:0;right:0;z-index:999;background:#111118;border-bottom:1px solid rgba(255,255,255,0.06)}
-.tabs-inner{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;gap:0;overflow-x:auto}
-.tab{padding:14px 24px;font-size:.85rem;font-weight:500;color:#6e6e73;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
-.tab:hover{color:#fff}.tab.active{color:#2997ff;border-bottom-color:#2997ff}
-.content{max-width:1200px;margin:0 auto;padding:152px 2rem 3rem;display:none}
-.content.visible{display:block}
-.report-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
-.report-header h1{font-size:1.8rem;font-weight:700;letter-spacing:-0.03em}
-.report-header p{color:#6e6e73;font-size:.9rem;margin-top:.3rem}
-.filters{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
-.f-btn{padding:7px 16px;border-radius:980px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#6e6e73;font-size:.78rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:inherit}
-.f-btn:hover{border-color:rgba(255,255,255,0.3);color:#fff}
-.f-btn.active{background:#2997ff;border-color:#2997ff;color:#fff}
-.month-pills{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:1.5rem}
-.mp{padding:6px 14px;border-radius:980px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:#6e6e73;font-size:.75rem;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit}
-.mp:hover{border-color:rgba(255,255,255,0.2);color:#fff}
-.mp.active{background:rgba(41,151,255,0.15);border-color:#2997ff;color:#2997ff}
-.mp.all{background:rgba(255,255,255,0.05)}.mp.all.active{background:#2997ff;color:#fff;border-color:#2997ff}
-.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.5rem}
-.mc{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.2rem}
-.mc .l{font-size:.7rem;color:#6e6e73;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem}
-.mc .v{font-size:1.6rem;font-weight:700;letter-spacing:-0.03em}
-.mc .c{font-size:.72rem;margin-top:.2rem;font-weight:500}
-.c-up{color:#30d158}.c-down{color:#ff453a}.c-neutral{color:#6e6e73}
-.vb{color:#2997ff}.vp{color:#bf5af2}.vg{color:#30d158}.va{color:#ff9f0a}
-.compare-box{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.2rem;margin-bottom:.8rem}
-.compare-box h3{font-size:.85rem;font-weight:600;margin-bottom:.8rem}
-.cmp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem}
-.cmp-card{background:rgba(255,255,255,0.03);border-radius:10px;padding:1rem}
-.cmp-card .cmp-label{font-size:.7rem;color:#6e6e73;margin-bottom:.3rem}
-.cmp-card .cmp-row{display:flex;justify-content:space-between;align-items:baseline}
-.cmp-card .cmp-val{font-size:1.3rem;font-weight:700}
-.cmp-card .cmp-change{font-size:.75rem;font-weight:600;padding:3px 8px;border-radius:6px}
-.cmp-card .cmp-change.up{color:#30d158;background:rgba(48,209,88,0.1)}
-.cmp-card .cmp-change.down{color:#ff453a;background:rgba(255,69,58,0.1)}
-.charts-row{display:grid;grid-template-columns:3fr 2fr;gap:.8rem;margin-bottom:.8rem}
-.cb{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.2rem;margin-bottom:.8rem}
-.cb h3{font-size:.85rem;font-weight:600;margin-bottom:.8rem}
-.chart-wrap{position:relative;height:220px}
-.chart-wrap-tall{position:relative;height:320px}
-.tb{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.2rem;overflow-x:auto;margin-bottom:.8rem}
-.tb h3{font-size:.85rem;font-weight:600;margin-bottom:.8rem}
-table{width:100%;border-collapse:collapse;font-size:.78rem}
-th{text-align:left;padding:8px 10px;color:#6e6e73;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.06);white-space:nowrap}
-td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.03);white-space:nowrap}
-tr:hover td{background:rgba(255,255,255,0.02)}
-.n{text-align:right;font-variant-numeric:tabular-nums}
-.total td{font-weight:600;border-top:2px solid rgba(255,255,255,0.1)}
-.loading{text-align:center;padding:4rem;color:#6e6e73}
-.loading .spinner{width:32px;height:32px;border:3px solid rgba(255,255,255,0.1);border-top-color:#2997ff;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
-@keyframes spin{to{transform:rotate(360deg)}}
-.placeholder{text-align:center;padding:6rem 2rem;color:#6e6e73}
-.ch-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.8rem;margin-bottom:1.5rem}
-.ch-card{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1rem;cursor:pointer;transition:all .2s}
-.ch-card:hover{border-color:rgba(255,255,255,0.15);transform:translateY(-2px)}
-.ch-card.sel{border-color:#2997ff;background:#1a1a2e}
-.ch-card .ch-name{font-size:.78rem;font-weight:600;margin-bottom:.5rem;color:#fff}
-.ch-card .ch-val{font-size:1.3rem;font-weight:700;color:#2997ff}
-.ch-card .ch-sub{font-size:.7rem;color:#6e6e73;margin-top:.2rem}
-.coef-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.5rem}
-.coef-month{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1rem;transition:all .2s}
-.coef-month:hover{border-color:rgba(255,255,255,0.15)}
-.coef-month .cm-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem}
-.coef-month .cm-name{font-size:.85rem;font-weight:600}
-.cm-badge{font-size:.65rem;padding:3px 8px;border-radius:6px;font-weight:600}
-.cm-badge.ok{color:#30d158;background:rgba(48,209,88,0.1)}
-.cm-badge.no{color:#6e6e73;background:rgba(255,255,255,0.05)}
-.coef-month .cm-info{font-size:.72rem;color:#6e6e73;margin-bottom:.4rem}
-.cm-link{display:inline-block;font-size:.72rem;color:#2997ff;text-decoration:none;font-weight:500}
-.cm-link:hover{text-decoration:underline}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:#0a0a0f;color:#fff;-webkit-font-smoothing:antialiased}nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:#fff;border-bottom:1px solid rgba(0,0,0,0.08)}.nav-inner{max-width:1200px;margin:0 auto;padding:0 2rem;height:72px;display:flex;align-items:center;justify-content:space-between}.nav-logo{display:flex;align-items:center;text-decoration:none}.logo-img{height:44px;width:auto;object-fit:contain}.nav-links{display:flex;gap:2rem;list-style:none;align-items:center}.nav-links a{color:#6e6e73;text-decoration:none;font-size:.9rem;font-weight:500}.nav-cta{padding:10px 24px;background:#0071e3;color:#fff!important;border-radius:980px}.tabs-bar{position:fixed;top:72px;left:0;right:0;z-index:999;background:#111118;border-bottom:1px solid rgba(255,255,255,0.06)}.tabs-inner{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;gap:0;overflow-x:auto}.tab{padding:14px 24px;font-size:.85rem;font-weight:500;color:#6e6e73;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}.tab:hover{color:#fff}.tab.active{color:#2997ff;border-bottom-color:#2997ff}.content{max-width:1200px;margin:0 auto;padding:152px 2rem 3rem;display:none}.content.visible{display:block}.report-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}.report-header h1{font-size:1.8rem;font-weight:700;letter-spacing:-0.03em}.report-header p{color:#6e6e73;font-size:.9rem;margin-top:.3rem}.filters{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}.f-btn{padding:7px 16px;border-radius:980px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#6e6e73;font-size:.78rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:inherit}.f-btn:hover{border-color:rgba(255,255,255,0.3);color:#fff}.f-btn.active{background:#2997ff;border-color:#2997ff;color:#fff}.month-pills{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:1.5rem}.mp{padding:6px 14px;border-radius:980px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:#6e6e73;font-size:.75rem;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit}.mp:hover{border-color:rgba(255,255,255,0.2);color:#fff}.mp.active{background:rgba(41,151,255,0.15);border-color:#2997ff;color:#2997ff}.mp.all{background:rgba(255,255,255,0.05)}.mp.all.active{background:#2997ff;color:#fff;border-color:#2997ff}.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.5rem}.mc{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.2rem}.mc .l{font-size:.7rem;color:#6e6e73;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem}.mc .v{font-size:1.6rem;font-weight:700;letter-spacing:-0.03em}.mc .c{font-size:.72rem;margin-top:.2rem;font-weight:500}.c-up{color:#30d158}.c-down{color:#ff453a}.c-neutral{color:#6e6e73}.vb{color:#2997ff}.vp{color:#bf5af2}.vg{color:#30d158}.va{color:#ff9f0a}.compare-box{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.2rem;margin-bottom:.8rem}.compare-box h3{font-size:.85rem;font-weight:600;margin-bottom:.8rem}.cmp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem}.cmp-card{background:rgba(255,255,255,0.03);border-radius:10px;padding:1rem}.cmp-card .cmp-label{font-size:.7rem;color:#6e6e73;margin-bottom:.3rem}.cmp-card .cmp-row{display:flex;justify-content:space-between;align-items:baseline}.cmp-card .cmp-val{font-size:1.3rem;font-weight:700}.cmp-card .cmp-change{font-size:.75rem;font-weight:600;padding:3px 8px;border-radius:6px}.cmp-card .cmp-change.up{color:#30d158;background:rgba(48,209,88,0.1)}.cmp-card .cmp-change.down{color:#ff453a;background:rgba(255,69,58,0.1)}.charts-row{display:grid;grid-template-columns:3fr 2fr;gap:.8rem;margin-bottom:.8rem}.cb{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.2rem;margin-bottom:.8rem}.cb h3{font-size:.85rem;font-weight:600;margin-bottom:.8rem}.chart-wrap{position:relative;height:220px}.chart-wrap-tall{position:relative;height:320px}.tb{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.2rem;overflow-x:auto;margin-bottom:.8rem}.tb h3{font-size:.85rem;font-weight:600;margin-bottom:.8rem}table{width:100%;border-collapse:collapse;font-size:.78rem}th{text-align:left;padding:8px 10px;color:#6e6e73;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.06);white-space:nowrap}td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.03);white-space:nowrap}tr:hover td{background:rgba(255,255,255,0.02)}.n{text-align:right;font-variant-numeric:tabular-nums}.total td{font-weight:600;border-top:2px solid rgba(255,255,255,0.1)}.loading{text-align:center;padding:4rem;color:#6e6e73}.loading .spinner{width:32px;height:32px;border:3px solid rgba(255,255,255,0.1);border-top-color:#2997ff;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}@keyframes spin{to{transform:rotate(360deg)}}.placeholder{text-align:center;padding:6rem 2rem;color:#6e6e73}.ch-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.8rem;margin-bottom:1.5rem}.ch-card{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1rem;cursor:pointer;transition:all .2s}.ch-card:hover{border-color:rgba(255,255,255,0.15);transform:translateY(-2px)}.ch-card.sel{border-color:#2997ff;background:#1a1a2e}.ch-card .ch-name{font-size:.78rem;font-weight:600;margin-bottom:.5rem;color:#fff}.ch-card .ch-val{font-size:1.3rem;font-weight:700;color:#2997ff}.ch-card .ch-sub{font-size:.7rem;color:#6e6e73;margin-top:.2rem}
+.drop-zone{border:2px dashed rgba(41,151,255,0.3);border-radius:16px;padding:2.5rem;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:1.5rem;background:rgba(41,151,255,0.03)}.drop-zone:hover,.drop-zone.over{border-color:#2997ff;background:rgba(41,151,255,0.08)}.drop-zone h3{font-size:1rem;font-weight:600;margin-bottom:.5rem;color:#fff}.drop-zone p{font-size:.82rem;color:#6e6e73}.drop-zone .icon{font-size:2rem;margin-bottom:.5rem}
+.coef-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.5rem}.coef-month{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1rem;transition:all .2s;position:relative}.coef-month:hover{border-color:rgba(255,255,255,0.15)}.coef-month .cm-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem}.coef-month .cm-name{font-size:.85rem;font-weight:600}.cm-badge{font-size:.65rem;padding:3px 8px;border-radius:6px;font-weight:600}.cm-badge.ok{color:#30d158;background:rgba(48,209,88,0.1)}.cm-badge.no{color:#6e6e73;background:rgba(255,255,255,0.05)}.coef-month .cm-info{font-size:.72rem;color:#6e6e73}.cm-del{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;border:none;background:rgba(255,69,58,0.2);color:#ff453a;font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}.coef-month:hover .cm-del{opacity:1}
 @media(max-width:900px){.metrics-grid,.coef-grid{grid-template-columns:repeat(2,1fr)}.charts-row{grid-template-columns:1fr}.ch-cards{grid-template-columns:repeat(2,1fr)}.cmp-grid{grid-template-columns:1fr}}
 @media(max-width:600px){.metrics-grid,.coef-grid{grid-template-columns:1fr}.tabs-inner{overflow-x:auto}.nav-links{display:none}.report-header{flex-direction:column}.ch-cards{grid-template-columns:1fr}}
 </style>
@@ -113,32 +37,35 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 <div class="content" id="tab-2"><div class="placeholder"><h1>Направления</h1><p>Скоро будет добавлен</p></div></div>
 <div class="content" id="tab-3"><div class="placeholder"><h1>Приложение</h1><p>Скоро будет добавлен</p></div></div>
 <div class="content" id="tab-4">
-  <div class="report-header"><div><h1>Коэффициенты — <span id="coef-yr">2024</span></h1><p id="coef-sub">Загрузка Excel файлов...</p></div><div class="filters" id="yf-coef"></div></div>
-  <div id="coef-dash"><div class="loading"><div class="spinner"></div>Сканирование файлов...</div></div>
+  <div class="report-header"><div><h1>Коэффициенты — <span id="coef-yr">2025</span></h1><p id="coef-sub">Перетащите CSV/Excel файлы сюда</p></div><div class="filters" id="yf-coef"></div></div>
+  <div id="coef-drop" class="drop-zone" onclick="document.getElementById('coef-input').click()">
+    <div class="icon">📂</div>
+    <h3>Перетащите файлы сюда</h3>
+    <p>CSV или Excel файлы · название файла = месяц (например Январь-2025.csv)</p>
+    <input type="file" id="coef-input" multiple accept=".csv,.xlsx,.xls" style="display:none">
+  </div>
+  <div id="coef-dash"></div>
 </div>
 
 <script>
 const TABS=5;
-function showTab(n){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));for(let i=0;i<TABS;i++){const e=document.getElementById('tab-'+i);if(e)e.classList.toggle('visible',i===n)}if(n===4&&!coefLoaded)loadCoef()}
+function showTab(n){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));for(let i=0;i<TABS;i++){const e=document.getElementById('tab-'+i);if(e)e.classList.toggle('visible',i===n)}if(n===4)renderCoef()}
 
 const SHEET_ID='1VkQwl1aknuWDExiTqadsvf6FmnLWcUwCEsM_joUAmmk';
-const REPO='wapxman/ustabor-analytics';
 const MRU={'январь':0,'февраль':1,'март':2,'апрель':3,'май':4,'июнь':5,'июль':6,'август':7,'сентябрь':8,'октябрь':9,'ноябрь':10,'декабрь':11};
 const MS=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
 const MF=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const CHCOL=['#2997ff','#bf5af2','#30d158','#ff9f0a','#ff453a','#64d2ff','#ffd60a','#ac8e68','#ff375f','#5e5ce6'];
-const CY=[2023,2024,2025,2026];
 
-let AD={},curY=2024,selCh=null,selMonths=null,coefData={},coefYear=2024,coefLoaded=false;
+let AD={},curY=2024,selCh=null,selMonths=null,coefYear=2025;
 let c1,c2,c3,c4,c5,c6ref;
 const gc='rgba(255,255,255,0.04)',tc='#6e6e73';
 function fmt(n){return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,' ')}
 function pN(s){if(!s)return 0;return parseInt(String(s).replace(/\s/g,'').replace(/,/g,''))||0}
 function pC(s){if(!s)return 0;return parseFloat(String(s).replace(',','.').replace('%',''))||0}
 
-// ===== SHEETS LOAD =====
+// ===== SHEETS =====
 async function loadData(){try{const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('Каналы')}`;const res=await fetch(url);const text=await res.text();const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);?/)[1]);let cM=null,cY=null;json.table.rows.forEach(row=>{const cells=row.c||[];const a=cells[0]?cells[0].v:'';if(!a)return;const s=String(a).trim(),mm=s.match(/^(\S+)\s+(\d{4})$/i);if(mm){const mn=mm[1].toLowerCase(),yr=parseInt(mm[2]);if(MRU[mn]!==undefined){cM=MRU[mn];cY=yr;if(!AD[yr])AD[yr]={months:{}};if(!AD[yr].months[cM])AD[yr].months[cM]={channels:[],total:null}}return}if(s==='Канал'||!cY)return;const v=cells[1]?pN(cells[1].v):0,cl=cells[2]?pN(cells[2].v):0,ld=cells[3]?pN(cells[3].v):0,cv=cells[4]?(cells[4].v||cells[4].f||'0%'):'0%';if(s==='Итого')AD[cY].months[cM].total={visitors:v,clicks:cl,leads:ld,conv:pC(cv)};else AD[cY].months[cM].channels.push({name:s,visitors:v,clicks:cl,leads:ld,conv:pC(cv)})});const yrs=Object.keys(AD).map(Number).sort();curY=yrs.includes(2024)?2024:yrs[yrs.length-1];renderAll()}catch(e){document.getElementById('dashboard').innerHTML=`<div class="loading" style="color:#ff453a">Ошибка: ${e.message}</div>`}}
-
 function yrBtns(id){const yrs=Object.keys(AD).map(Number).sort();document.getElementById(id).innerHTML=yrs.map(y=>`<button class="f-btn${y===curY?' active':''}" onclick="setY(${y})">${y}</button>`).join('')}
 function setY(y){curY=y;selCh=null;selMonths=null;renderAll()}
 function renderAll(){yrBtns('yf0');yrBtns('yf1');renderMonthPills();renderTraffic();renderChannels()}
@@ -146,76 +73,129 @@ function renderMonthPills(){const yd=AD[curY];if(!yd)return;const sm=Object.keys
 function toggleMonth(m){if(!selMonths)selMonths=[];const i=selMonths.indexOf(m);if(i>=0)selMonths.splice(i,1);else selMonths.push(m);if(!selMonths.length)selMonths=null;renderTraffic();renderMonthPills()}
 function getF(year){const yd=AD[year];if(!yd)return null;let sm=Object.keys(yd.months).map(Number).sort((a,b)=>a-b);if(selMonths&&year===curY)sm=sm.filter(m=>selMonths.includes(m));const mo=[],vi=[],cl=[],le=[];const ca={};sm.forEach(m=>{const d=yd.months[m];if(!d||!d.total)return;mo.push(MS[m]);vi.push(d.total.visitors);cl.push(d.total.clicks);le.push(d.total.leads);d.channels.forEach(ch=>{if(!ca[ch.name])ca[ch.name]={visitors:0,clicks:0,leads:0,monthly:{}};ca[ch.name].visitors+=ch.visitors;ca[ch.name].clicks+=ch.clicks;ca[ch.name].leads+=ch.leads;ca[ch.name].monthly[m]=ch})});const tv=vi.reduce((a,b)=>a+b,0),tcl=cl.reduce((a,b)=>a+b,0),tl=le.reduce((a,b)=>a+b,0);return{sm,mo,vi,cl,le,ca,tv,tcl,tl,avgConv:tv>0?((tcl/tv)*100).toFixed(1):'0'}}
 function pctCh(c,p){if(!p||p===0)return{v:0,t:'—',cls:'c-neutral'};const r=((c-p)/p*100).toFixed(1);return r>0?{v:r,t:'↑'+r+'%',cls:'c-up'}:r<0?{v:r,t:'↓'+Math.abs(r)+'%',cls:'c-down'}:{v:0,t:'0%',cls:'c-neutral'}}
-
 function renderTraffic(){const d=getF(curY);if(!d||!d.sm.length){document.getElementById('dashboard').innerHTML='<div class="loading">Нет данных</div>';return}const fm=MF[d.sm[0]],lm=MF[d.sm[d.sm.length-1]];document.getElementById('yr-title').textContent=curY;document.getElementById('yr-sub').textContent=(selMonths?'Выбрано '+d.sm.length+' мес.':fm+' — '+lm+' '+curY)+' · live';const pY=curY-1;let pD=null;if(AD[pY]){const ps=d.sm.filter(m=>AD[pY].months[m]&&AD[pY].months[m].total);if(ps.length){pD={tv:0,tcl:0,tl:0};ps.forEach(m=>{const t=AD[pY].months[m].total;pD.tv+=t.visitors;pD.tcl+=t.clicks;pD.tl+=t.leads})}}const chV=pD?pctCh(d.tv,pD.tv):{t:'',cls:'c-neutral'},chC=pD?pctCh(d.tcl,pD.tcl):{t:'',cls:'c-neutral'},chL=pD?pctCh(d.tl,pD.tl):{t:'',cls:'c-neutral'},pCv=pD&&pD.tv>0?((pD.tcl/pD.tv)*100).toFixed(1):0,chCv=pD?pctCh(parseFloat(d.avgConv),parseFloat(pCv)):{t:'',cls:'c-neutral'};let h=`<div class="metrics-grid"><div class="mc"><div class="l">Посетители</div><div class="v vb">${d.tv>=1e3?(d.tv/1e3).toFixed(0)+'K':d.tv}</div><div class="c ${chV.cls}">${pD?'vs '+pY+' '+chV.t:d.mo.length+' мес.'}</div></div><div class="mc"><div class="l">Клики</div><div class="v vp">${d.tcl>=1e3?(d.tcl/1e3).toFixed(1)+'K':d.tcl}</div><div class="c ${chC.cls}">${pD?'vs '+pY+' '+chC.t:'на контакты'}</div></div><div class="mc"><div class="l">Заявки</div><div class="v vg">${fmt(d.tl)}</div><div class="c ${chL.cls}">${pD?'vs '+pY+' '+chL.t:fm+'–'+lm}</div></div><div class="mc"><div class="l">Ср. конверсия</div><div class="v va">${d.avgConv}%</div><div class="c ${chCv.cls}">${pD?'vs '+pY+' '+chCv.t:'клики/посетители'}</div></div></div>`;if(pD){h+=`<div class="compare-box"><h3>Сравнение: ${curY} vs ${pY}</h3><div class="cmp-grid"><div class="cmp-card"><div class="cmp-label">Посетители</div><div class="cmp-row"><div class="cmp-val vb">${fmt(d.tv)}</div><span class="cmp-change ${chV.v>0?'up':'down'}">${chV.t}</span></div><div style="font-size:.7rem;color:#6e6e73;margin-top:4px">${pY}: ${fmt(pD.tv)}</div></div><div class="cmp-card"><div class="cmp-label">Клики</div><div class="cmp-row"><div class="cmp-val vp">${fmt(d.tcl)}</div><span class="cmp-change ${chC.v>0?'up':'down'}">${chC.t}</span></div><div style="font-size:.7rem;color:#6e6e73;margin-top:4px">${pY}: ${fmt(pD.tcl)}</div></div><div class="cmp-card"><div class="cmp-label">Заявки</div><div class="cmp-row"><div class="cmp-val vg">${fmt(d.tl)}</div><span class="cmp-change ${chL.v>0?'up':'down'}">${chL.t}</span></div><div style="font-size:.7rem;color:#6e6e73;margin-top:4px">${pY}: ${fmt(pD.tl)}</div></div><div class="cmp-card"><div class="cmp-label">Конверсия</div><div class="cmp-row"><div class="cmp-val va">${d.avgConv}%</div><span class="cmp-change ${chCv.v>0?'up':'down'}">${chCv.t}</span></div><div style="font-size:.7rem;color:#6e6e73;margin-top:4px">${pY}: ${pCv}%</div></div></div></div>`}h+=`<div class="charts-row"><div class="cb"><h3>Посетители и клики</h3><div class="chart-wrap"><canvas id="cV"></canvas></div></div><div class="cb"><h3>Заявки</h3><div class="chart-wrap"><canvas id="cL"></canvas></div></div></div>`;h+=`<div class="tb"><h3>Помесячная сводка — ${curY}</h3><table><thead><tr><th>Месяц</th><th class="n">Посетители</th><th class="n">Клики</th><th class="n">Заявки</th><th class="n">Конверсия</th>${pD?'<th class="n">Пос.'+pY+'</th><th class="n">Δ%</th>':''}</tr></thead><tbody>`;d.sm.forEach(m=>{const t=AD[curY].months[m].total;if(!t)return;h+=`<tr><td>${MF[m]}</td><td class="n">${fmt(t.visitors)}</td><td class="n">${fmt(t.clicks)}</td><td class="n">${t.leads}</td><td class="n">${t.conv.toFixed(2).replace('.',',')}%</td>`;if(pD&&AD[pY]&&AD[pY].months[m]&&AD[pY].months[m].total){const pt=AD[pY].months[m].total;const ch=pctCh(t.visitors,pt.visitors);h+=`<td class="n">${fmt(pt.visitors)}</td><td class="n ${ch.cls}">${ch.t}</td>`}else if(pD)h+=`<td class="n">—</td><td class="n">—</td>`;h+=`</tr>`});h+=`<tr class="total"><td>Итого</td><td class="n" style="color:#2997ff">${fmt(d.tv)}</td><td class="n" style="color:#bf5af2">${fmt(d.tcl)}</td><td class="n" style="color:#30d158">${fmt(d.tl)}</td><td class="n" style="color:#ff9f0a">${d.avgConv}%</td>`;if(pD){const ch=pctCh(d.tv,pD.tv);h+=`<td class="n">${fmt(pD.tv)}</td><td class="n ${ch.cls}">${ch.t}</td>`}h+=`</tr></tbody></table></div>`;h+=`<div class="cb"><h3>Каналы</h3><div class="chart-wrap"><canvas id="cC"></canvas></div></div>`;document.getElementById('dashboard').innerHTML=h;if(c1)c1.destroy();if(c2)c2.destroy();if(c3)c3.destroy();c1=new Chart(document.getElementById('cV'),{type:'line',data:{labels:d.mo,datasets:[{label:'Посетители',data:d.vi,borderColor:'#2997ff',backgroundColor:'rgba(41,151,255,0.08)',fill:true,tension:.4,pointRadius:3,borderWidth:2},{label:'Клики',data:d.cl,borderColor:'#bf5af2',backgroundColor:'rgba(191,90,242,0.08)',fill:true,tension:.4,pointRadius:3,borderWidth:2,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tc,font:{size:11},boxWidth:12}}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc,callback:v=>v>=1e3?(v/1e3)+'K':v}},y1:{position:'right',grid:{drawOnChartArea:false},ticks:{color:tc,callback:v=>v>=1e3?(v/1e3)+'K':v}}}}});c2=new Chart(document.getElementById('cL'),{type:'bar',data:{labels:d.mo,datasets:[{data:d.le,backgroundColor:d.le.map(v=>{const mx=Math.max(...d.le);return v>=mx*.7?'#30d158':'rgba(48,209,88,0.5)'}),borderRadius:4,barPercentage:.6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc}}}}});const cs=Object.entries(d.ca).sort((a,b)=>b[1].visitors-a[1].visitors);c3=new Chart(document.getElementById('cC'),{type:'bar',data:{labels:cs.map(c=>c[0]),datasets:[{label:'Посетители (тыс.)',data:cs.map(c=>+(c[1].visitors/1e3).toFixed(1)),backgroundColor:'#2997ff',borderRadius:3,barPercentage:.7},{label:'Клики (тыс.)',data:cs.map(c=>+(c[1].clicks/1e3).toFixed(1)),backgroundColor:'#bf5af2',borderRadius:3,barPercentage:.7}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{labels:{color:tc,font:{size:11},boxWidth:12}}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc,font:{size:11}}}}}})}
-
 function renderChannels(){const d=getF(curY);if(!d||!d.sm.length){document.getElementById('channels-dash').innerHTML='<div class="loading">Нет данных</div>';return}document.getElementById('yr-title2').textContent=curY;document.getElementById('yr-sub2').textContent=MF[d.sm[0]]+' — '+MF[d.sm[d.sm.length-1]]+' '+curY;const cs=Object.entries(d.ca).sort((a,b)=>b[1].visitors-a[1].visitors);if(!selCh&&cs.length)selCh=cs[0][0];let h=`<div class="ch-cards">`;cs.forEach(([name,data])=>{const pct=d.tv>0?((data.visitors/d.tv)*100).toFixed(1):'0';h+=`<div class="ch-card${name===selCh?' sel':''}" onclick="selCh='${name.replace(/'/g,"\\'")}';renderChannels()"><div class="ch-name">${name}</div><div class="ch-val">${(data.visitors/1e3).toFixed(1)}K</div><div class="ch-sub">${pct}% · ${data.leads} заявок</div></div>`});h+=`</div>`;const allSm=Object.keys(AD[curY].months).map(Number).sort((a,b)=>a-b),allMo=allSm.map(m=>MS[m]);h+=`<div class="charts-row"><div class="cb"><h3>${selCh} — посетители</h3><div class="chart-wrap"><canvas id="cChV"></canvas></div></div><div class="cb"><h3>${selCh} — заявки</h3><div class="chart-wrap"><canvas id="cChL"></canvas></div></div></div>`;h+=`<div class="cb"><h3>Топ каналы</h3><div class="chart-wrap-tall"><canvas id="cChAll"></canvas></div></div>`;h+=`<div class="tb"><h3>Сводная — ${curY}</h3><table><thead><tr><th>Канал</th><th class="n">Посетители</th><th class="n">%</th><th class="n">Клики</th><th class="n">Заявки</th><th class="n">Конв.</th></tr></thead><tbody>`;cs.forEach(([name,data])=>{const pct=d.tv>0?((data.visitors/d.tv)*100).toFixed(1):'0';const cv=data.visitors>0?((data.clicks/data.visitors)*100).toFixed(2):'0';h+=`<tr><td>${name}</td><td class="n">${fmt(data.visitors)}</td><td class="n">${pct}%</td><td class="n">${fmt(data.clicks)}</td><td class="n">${data.leads}</td><td class="n">${cv.replace('.',',')}%</td></tr>`});h+=`<tr class="total"><td>Итого</td><td class="n" style="color:#2997ff">${fmt(d.tv)}</td><td class="n">100%</td><td class="n" style="color:#bf5af2">${fmt(d.tcl)}</td><td class="n" style="color:#30d158">${fmt(d.tl)}</td><td class="n" style="color:#ff9f0a">${d.avgConv}%</td></tr></tbody></table></div>`;document.getElementById('channels-dash').innerHTML=h;if(c4)c4.destroy();if(c5)c5.destroy();if(c6ref)c6ref.destroy();const chData=d.ca[selCh];if(chData){c4=new Chart(document.getElementById('cChV'),{type:'line',data:{labels:allMo,datasets:[{data:allSm.map(m=>chData.monthly[m]?chData.monthly[m].visitors:0),borderColor:'#2997ff',backgroundColor:'rgba(41,151,255,0.1)',fill:true,tension:.4,pointRadius:4,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc,callback:v=>v>=1e3?(v/1e3)+'K':v}}}}});c5=new Chart(document.getElementById('cChL'),{type:'bar',data:{labels:allMo,datasets:[{data:allSm.map(m=>chData.monthly[m]?chData.monthly[m].leads:0),backgroundColor:'#30d158',borderRadius:4,barPercentage:.6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc}}}}})}const topCh=cs.slice(0,6);c6ref=new Chart(document.getElementById('cChAll'),{type:'line',data:{labels:allMo,datasets:topCh.map(([name,data],i)=>({label:name,data:allSm.map(m=>data.monthly[m]?data.monthly[m].visitors:0),borderColor:CHCOL[i%CHCOL.length],backgroundColor:'transparent',tension:.4,pointRadius:2,borderWidth:2}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tc,font:{size:11},boxWidth:12}}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc,callback:v=>v>=1e3?(v/1e3)+'K':v}}}}})}
 
-// ===== КОЭФФИЦИЕНТЫ (Excel) =====
-async function loadCoef(){
-  coefLoaded=true;
-  coefData={};
-  for(const yr of CY){
-    coefData[yr]={};
-    for(let m=1;m<=12;m++){
-      const mm=String(m).padStart(2,'0');
-      try{
-        const res=await fetch(`/coefficients/${yr}/${mm}.xlsx`);
-        if(res.ok&&res.headers.get('content-type')!=='text/html'){
-          const buf=await res.arrayBuffer();
-          const wb=XLSX.read(buf,{type:'array'});
-          const sheets={};
-          wb.SheetNames.forEach(name=>{sheets[name]=XLSX.utils.sheet_to_json(wb.Sheets[name],{header:1})});
-          coefData[yr][m]={sheets,names:wb.SheetNames};
-        }else{coefData[yr][m]=null}
-      }catch(e){coefData[yr][m]=null}
+// ===== КОЭФФИЦИЕНТЫ — drag & drop =====
+const MONTH_MAP={'январь':1,'февраль':2,'март':3,'апрель':4,'май':5,'июнь':6,'июль':7,'август':8,'сентябрь':9,'октябрь':10,'ноябрь':11,'декабрь':12};
+
+function getCoefStore(){try{return JSON.parse(localStorage.getItem('ustabor_coef')||'{}');}catch(e){return {}}}
+function saveCoefStore(data){localStorage.setItem('ustabor_coef',JSON.stringify(data))}
+
+function detectMonthYear(filename){
+  const name=filename.replace(/\.[^.]+$/,'').toLowerCase();
+  for(const[mn,num] of Object.entries(MONTH_MAP)){
+    if(name.includes(mn)){
+      const ym=name.match(/(\d{4})/);
+      const year=ym?parseInt(ym[1]):new Date().getFullYear();
+      return{month:num,year};
     }
   }
-  renderCoefBtns();renderCoef();
+  return null;
 }
 
-function renderCoefBtns(){document.getElementById('yf-coef').innerHTML=CY.map(y=>`<button class="f-btn${y===coefYear?' active':''}" onclick="coefYear=${y};renderCoefBtns();renderCoef()">${y}</button>`).join('')}
+function parseCSVSemicolon(text){
+  const lines=text.split('\n').filter(l=>l.trim());
+  return lines.map(line=>{
+    const result=[];let cur='',inQ=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='"'){inQ=!inQ}
+      else if(c===';'&&!inQ){result.push(cur.trim());cur=''}
+      else{cur+=c}
+    }
+    result.push(cur.trim());
+    return result;
+  });
+}
+
+async function handleFiles(files){
+  const store=getCoefStore();
+  let count=0;
+  for(const file of files){
+    const info=detectMonthYear(file.name);
+    if(!info){alert(`Не удалось определить месяц из "${file.name}". Назовите файл например: Январь-2025.csv`);continue}
+    const key=`${info.year}-${String(info.month).padStart(2,'0')}`;
+    const text=await file.text();
+    let rows;
+    if(file.name.endsWith('.csv')){
+      rows=parseCSVSemicolon(text);
+    }else{
+      const buf=await file.arrayBuffer();
+      const wb=XLSX.read(buf,{type:'array'});
+      rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1});
+    }
+    if(rows.length>1){
+      store[key]={h:rows[0],d:rows.slice(1),name:file.name};
+      count++;
+    }
+  }
+  saveCoefStore(store);
+  renderCoef();
+  if(count>0)alert(`Загружено ${count} файл(ов)!`);
+}
+
+function deleteCoefMonth(key){
+  const store=getCoefStore();
+  delete store[key];
+  saveCoefStore(store);
+  renderCoef();
+}
+
+// Drop zone
+const dz=document.getElementById('coef-drop');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');handleFiles(e.dataTransfer.files)});
+document.getElementById('coef-input').addEventListener('change',e=>{handleFiles(e.target.files);e.target.value=''});
+
+function renderCoefBtns(){
+  const store=getCoefStore();
+  const years=new Set();
+  Object.keys(store).forEach(k=>{const y=parseInt(k.split('-')[0]);years.add(y)});
+  [2023,2024,2025,2026].forEach(y=>years.add(y));
+  const sorted=[...years].sort();
+  document.getElementById('yf-coef').innerHTML=sorted.map(y=>`<button class="f-btn${y===coefYear?' active':''}" onclick="coefYear=${y};renderCoef()">${y}</button>`).join('');
+}
 
 function renderCoef(){
+  renderCoefBtns();
   document.getElementById('coef-yr').textContent=coefYear;
-  const yd=coefData[coefYear]||{};
-  let filled=0;for(let m=1;m<=12;m++)if(yd[m])filled++;
-  document.getElementById('coef-sub').textContent=`${filled} из 12 месяцев загружено · Excel файлы из GitHub`;
+  const store=getCoefStore();
+  const yearKeys=Object.keys(store).filter(k=>k.startsWith(coefYear+'-')).sort();
+  const filled=yearKeys.length;
+  document.getElementById('coef-sub').textContent=filled>0?`${filled} месяц(ев) загружено · данные сохранены в браузере`:'Перетащите CSV/Excel файлы для загрузки';
 
   let h=`<div class="coef-grid">`;
   for(let m=1;m<=12;m++){
-    const d=yd[m];
-    const mm=String(m).padStart(2,'0');
-    const uploadUrl=`https://github.com/${REPO}/tree/main/public/coefficients/${coefYear}`;
+    const key=`${coefYear}-${String(m).padStart(2,'0')}`;
+    const d=store[key];
     if(d){
-      const rows=d.sheets[d.names[0]]?d.sheets[d.names[0]].length:0;
-      const sheetCount=d.names.length;
-      h+=`<div class="coef-month"><div class="cm-head"><span class="cm-name">${MF[m-1]}</span><span class="cm-badge ok">${rows} строк</span></div><div class="cm-info">${sheetCount} лист(ов): ${d.names.join(', ')}</div><a href="${uploadUrl}" target="_blank" class="cm-link">Заменить →</a></div>`;
+      h+=`<div class="coef-month"><button class="cm-del" onclick="deleteCoefMonth('${key}')" title="Удалить">✕</button><div class="cm-head"><span class="cm-name">${MF[m-1]}</span><span class="cm-badge ok">${d.d.length} строк</span></div><div class="cm-info">${d.name||'файл'}</div></div>`;
     }else{
-      h+=`<div class="coef-month"><div class="cm-head"><span class="cm-name">${MF[m-1]}</span><span class="cm-badge no">нет файла</span></div><div class="cm-info">Загрузите ${mm}.xlsx</div><a href="${uploadUrl}" target="_blank" class="cm-link">Загрузить →</a></div>`;
+      h+=`<div class="coef-month"><div class="cm-head"><span class="cm-name">${MF[m-1]}</span><span class="cm-badge no">пусто</span></div><div class="cm-info">Перетащите файл</div></div>`;
     }
   }
   h+=`</div>`;
 
-  // Show data from filled months
-  for(let m=1;m<=12;m++){
-    const d=yd[m];if(!d)continue;
-    d.names.forEach(sheetName=>{
-      const rows=d.sheets[sheetName];if(!rows||rows.length<2)return;
-      h+=`<div class="tb"><h3>${MF[m-1]} ${coefYear} — ${sheetName}</h3><table><thead><tr>`;
-      rows[0].forEach(col=>{h+=`<th>${col||''}</th>`});
-      h+=`</tr></thead><tbody>`;
-      for(let r=1;r<rows.length;r++){
-        h+=`<tr>`;rows[r].forEach((cell,ci)=>{h+=`<td class="${ci>0?'n':''}">${cell!==undefined&&cell!==null?cell:''}</td>`});h+=`</tr>`;
-      }
-      h+=`</tbody></table></div>`;
+  // Tables for loaded months
+  yearKeys.forEach(key=>{
+    const d=store[key];if(!d||!d.h||!d.d)return;
+    const m=parseInt(key.split('-')[1]);
+    h+=`<div class="tb"><h3>${MF[m-1]} ${coefYear}</h3><table><thead><tr>`;
+    d.h.forEach(col=>{h+=`<th>${col||''}</th>`});
+    h+=`</tr></thead><tbody>`;
+    d.d.forEach(row=>{
+      if(!row.some(c=>c&&String(c).trim()))return;
+      h+=`<tr>`;row.forEach((cell,ci)=>{h+=`<td class="${ci>2?'n':''}">${cell!==undefined&&cell!==null?cell:''}</td>`});h+=`</tr>`;
     });
-  }
+    h+=`</tbody></table></div>`;
+  });
 
-  if(!filled)h+=`<div class="placeholder"><p>Нет загруженных файлов. Зайдите на <a href="https://github.com/${REPO}/tree/main/public/coefficients/${coefYear}" target="_blank" style="color:#2997ff">GitHub</a> и загрузите Excel файлы (01.xlsx, 02.xlsx, ... 12.xlsx)</p></div>`;
   document.getElementById('coef-dash').innerHTML=h;
 }
 
+renderCoef();
 loadData();
 </script>
 </body>
