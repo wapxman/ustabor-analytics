@@ -1,12 +1,41 @@
-// Override: полная версия renderChannels с графиками, YoY и кликабельными карточками
-// Загружается после main.js и переопределяет упрощённую функцию
+// Override: полная версия renderChannels с month pills, графиками, YoY и кликабельными карточками
+let chSelMonths = null;
+
+function toggleChMonth(m) {
+  if (!chSelMonths) chSelMonths = [];
+  const i = chSelMonths.indexOf(m);
+  if (i >= 0) chSelMonths.splice(i, 1); else chSelMonths.push(m);
+  if (!chSelMonths.length) chSelMonths = null;
+  renderChannels();
+}
 
 function renderChannels(){
-  const d=getF(curY);
+  const yd = AD[curY];
+  if (!yd) { document.getElementById('channels-dash').innerHTML='<div class="loading">Нет данных</div>'; return }
+  const allSm = Object.keys(yd.months).map(Number).sort((a,b)=>a-b);
+  const filt = chSelMonths ? allSm.filter(m => chSelMonths.includes(m)) : null;
+  const d = getF(curY, filt);
   if(!d||!d.sm.length){document.getElementById('channels-dash').innerHTML='<div class="loading">Нет данных</div>';return}
+
   const pY=curY-1;const pD=getF(pY,d.sm);const hasPrev=pD&&pD.sm.length>0;
   document.getElementById('yr-title2').textContent=curY;
-  document.getElementById('yr-sub2').textContent=MF[d.sm[0]]+' — '+MF[d.sm[d.sm.length-1]]+' '+curY+(hasPrev?' vs '+pY:'');
+  document.getElementById('yr-sub2').textContent=(chSelMonths?'Выбрано '+d.sm.length+' мес.':MF[d.sm[0]]+' — '+MF[d.sm[d.sm.length-1]])+' '+curY+(hasPrev?' vs '+pY:'');
+
+  // Month pills
+  let pills = document.getElementById('ch-month-pills');
+  if (!pills) {
+    pills = document.createElement('div');
+    pills.id = 'ch-month-pills';
+    pills.className = 'month-pills';
+    const dash = document.getElementById('channels-dash');
+    dash.parentNode.insertBefore(pills, dash);
+  }
+  let mp = `<button class="mp all${chSelMonths===null?' active':''}" onclick="chSelMonths=null;renderChannels()">Все</button>`;
+  allSm.forEach(m => {
+    mp += `<button class="mp${chSelMonths&&chSelMonths.includes(m)?' active':''}" onclick="toggleChMonth(${m})">${MS[m]}</button>`;
+  });
+  pills.innerHTML = mp;
+
   const cs=Object.entries(d.ca).sort((a,b)=>b[1].visitors-a[1].visitors);
   if(!selCh&&cs.length)selCh=cs[0][0];
 
@@ -26,8 +55,7 @@ function renderChannels(){
   });
   h+=`</div>`;
 
-  // Monthly data for charts
-  const allSm=Object.keys(AD[curY].months).map(Number).sort((a,b)=>a-b);
+  // Monthly data for charts (always all months for the line chart)
   const allMo=allSm.map(m=>MS[m]);
 
   // Charts row
@@ -59,16 +87,20 @@ function renderChannels(){
   // Destroy old charts
   if(c4)c4.destroy();if(c5)c5.destroy();
 
-  // Line chart: top 6 channels over months
+  // Line chart: top 6 channels over ALL months
   const topCh=cs.slice(0,6);
+  const fullD = getF(curY); // all months for line chart
   c4=new Chart(document.getElementById('cChAll'),{
     type:'line',
-    data:{labels:allMo,datasets:topCh.map(([name,data],i)=>({
-      label:name,
-      data:allSm.map(m=>data.monthly[m]?data.monthly[m].visitors:0),
-      borderColor:CHCOL[i%CHCOL.length],backgroundColor:'transparent',
-      tension:.4,pointRadius:2,borderWidth:2
-    }))},
+    data:{labels:allMo,datasets:topCh.map(([name],i)=>{
+      const chFull = fullD.ca[name];
+      return {
+        label:name,
+        data:allSm.map(m=>chFull&&chFull.monthly[m]?chFull.monthly[m].visitors:0),
+        borderColor:CHCOL[i%CHCOL.length],backgroundColor:'transparent',
+        tension:.4,pointRadius:2,borderWidth:2
+      };
+    })},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{labels:{color:tc,font:{size:11},boxWidth:12}}},
       scales:{
@@ -78,13 +110,13 @@ function renderChannels(){
   });
 
   // Bar chart: selected channel leads by month
-  const chData=d.ca[selCh];
-  if(chData){
+  const chFull = fullD.ca[selCh];
+  if(chFull){
     c5=new Chart(document.getElementById('cChL'),{
       type:'bar',
       data:{labels:allMo,datasets:[{
         label:selCh+' заявки',
-        data:allSm.map(m=>chData.monthly[m]?chData.monthly[m].leads:0),
+        data:allSm.map(m=>chFull.monthly[m]?chFull.monthly[m].leads:0),
         backgroundColor:'#30d158',borderRadius:4,barPercentage:.6
       }]},
       options:{responsive:true,maintainAspectRatio:false,
