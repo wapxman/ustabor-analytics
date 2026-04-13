@@ -1,7 +1,8 @@
 // Ustabor Plugin System — автозагрузка
 const PLUGINS = [
   'js/tab-masters-data.js',
-  'js/tab-masters.js'
+  'js/tab-masters.js',
+  'js/tab-unit-economics.js'
   // Добавляйте новые плагины сюда:
   // 'js/tab-finance.js',
 ];
