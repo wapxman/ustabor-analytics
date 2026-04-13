@@ -6,6 +6,7 @@
 <title>Ustabor — AI CEO Аналитика</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:#0a0a0f;color:#fff;-webkit-font-smoothing:antialiased}
@@ -33,8 +34,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:#fff;border-bott
 .mp{padding:6px 14px;border-radius:980px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:#6e6e73;font-size:.75rem;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit}
 .mp:hover{border-color:rgba(255,255,255,0.2);color:#fff}
 .mp.active{background:rgba(41,151,255,0.15);border-color:#2997ff;color:#2997ff}
-.mp.all{background:rgba(255,255,255,0.05)}
-.mp.all.active{background:#2997ff;color:#fff;border-color:#2997ff}
+.mp.all{background:rgba(255,255,255,0.05)}.mp.all.active{background:#2997ff;color:#fff;border-color:#2997ff}
 .metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.5rem}
 .mc{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.2rem}
 .mc .l{font-size:.7rem;color:#6e6e73;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem}
@@ -79,23 +79,20 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 .coef-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.5rem}
 .coef-month{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1rem;transition:all .2s}
 .coef-month:hover{border-color:rgba(255,255,255,0.15)}
-.coef-month .cm-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
+.coef-month .cm-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem}
 .coef-month .cm-name{font-size:.85rem;font-weight:600}
-.coef-month .cm-status{font-size:.65rem;padding:3px 8px;border-radius:6px;font-weight:600}
-.cm-status.filled{color:#30d158;background:rgba(48,209,88,0.1)}
-.cm-status.empty{color:#6e6e73;background:rgba(255,255,255,0.05)}
-.coef-month .cm-keys{font-size:.72rem;color:#6e6e73;margin-bottom:.6rem}
-.coef-month .cm-edit{display:inline-block;font-size:.72rem;color:#2997ff;text-decoration:none;font-weight:500}
-.coef-month .cm-edit:hover{text-decoration:underline}
-.coef-detail{background:#16161e;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.2rem;margin-bottom:.8rem}
-.coef-detail h3{font-size:.85rem;font-weight:600;margin-bottom:.8rem}
+.cm-badge{font-size:.65rem;padding:3px 8px;border-radius:6px;font-weight:600}
+.cm-badge.ok{color:#30d158;background:rgba(48,209,88,0.1)}
+.cm-badge.no{color:#6e6e73;background:rgba(255,255,255,0.05)}
+.coef-month .cm-info{font-size:.72rem;color:#6e6e73;margin-bottom:.4rem}
+.cm-link{display:inline-block;font-size:.72rem;color:#2997ff;text-decoration:none;font-weight:500}
+.cm-link:hover{text-decoration:underline}
 @media(max-width:900px){.metrics-grid,.coef-grid{grid-template-columns:repeat(2,1fr)}.charts-row{grid-template-columns:1fr}.ch-cards{grid-template-columns:repeat(2,1fr)}.cmp-grid{grid-template-columns:1fr}}
 @media(max-width:600px){.metrics-grid,.coef-grid{grid-template-columns:1fr}.tabs-inner{overflow-x:auto}.nav-links{display:none}.report-header{flex-direction:column}.ch-cards{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <nav><div class="nav-inner"><a href="#" class="nav-logo"><img src="logo.png" alt="Ustabor" class="logo-img"></a><ul class="nav-links"><li><a href="#" class="nav-cta">Начать</a></li></ul></div></nav>
-
 <div class="tabs-bar"><div class="tabs-inner">
   <div class="tab active" onclick="showTab(0)">Трафик сайта</div>
   <div class="tab" onclick="showTab(1)">Каналы</div>
@@ -107,29 +104,22 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 <div class="content visible" id="tab-0">
   <div class="report-header"><div><h1>Трафик сайта — <span id="yr-title">2024</span></h1><p id="yr-sub">Загрузка...</p></div><div class="filters" id="yf0"></div></div>
   <div id="month-pills"></div>
-  <div id="dashboard"><div class="loading"><div class="spinner"></div>Загрузка данных из Google Sheets...</div></div>
+  <div id="dashboard"><div class="loading"><div class="spinner"></div>Загрузка данных...</div></div>
 </div>
-
 <div class="content" id="tab-1">
-  <div class="report-header"><div><h1>Каналы — <span id="yr-title2">2024</span></h1><p id="yr-sub2">Детальная разбивка по каналам</p></div><div class="filters" id="yf1"></div></div>
+  <div class="report-header"><div><h1>Каналы — <span id="yr-title2">2024</span></h1><p id="yr-sub2">Детальная разбивка</p></div><div class="filters" id="yf1"></div></div>
   <div id="channels-dash"><div class="loading"><div class="spinner"></div>Загрузка...</div></div>
 </div>
-
 <div class="content" id="tab-2"><div class="placeholder"><h1>Направления</h1><p>Скоро будет добавлен</p></div></div>
 <div class="content" id="tab-3"><div class="placeholder"><h1>Приложение</h1><p>Скоро будет добавлен</p></div></div>
-
 <div class="content" id="tab-4">
-  <div class="report-header"><div><h1>Коэффициенты — <span id="coef-yr">2024</span></h1><p id="coef-sub">Данные из JSON-файлов · Редактируйте на GitHub</p></div><div class="filters" id="yf-coef"></div></div>
-  <div id="coef-dash"><div class="loading"><div class="spinner"></div>Загрузка коэффициентов...</div></div>
+  <div class="report-header"><div><h1>Коэффициенты — <span id="coef-yr">2024</span></h1><p id="coef-sub">Загрузка Excel файлов...</p></div><div class="filters" id="yf-coef"></div></div>
+  <div id="coef-dash"><div class="loading"><div class="spinner"></div>Сканирование файлов...</div></div>
 </div>
 
 <script>
-const TABS_COUNT=5;
-function showTab(n){
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));
-  for(let i=0;i<TABS_COUNT;i++){const e=document.getElementById('tab-'+i);if(e)e.classList.toggle('visible',i===n)}
-  if(n===4&&!coefLoaded)loadCoefficients();
-}
+const TABS=5;
+function showTab(n){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));for(let i=0;i<TABS;i++){const e=document.getElementById('tab-'+i);if(e)e.classList.toggle('visible',i===n)}if(n===4&&!coefLoaded)loadCoef()}
 
 const SHEET_ID='1VkQwl1aknuWDExiTqadsvf6FmnLWcUwCEsM_joUAmmk';
 const REPO='wapxman/ustabor-analytics';
@@ -137,123 +127,92 @@ const MRU={'январь':0,'февраль':1,'март':2,'апрель':3,'м
 const MS=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
 const MF=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const CHCOL=['#2997ff','#bf5af2','#30d158','#ff9f0a','#ff453a','#64d2ff','#ffd60a','#ac8e68','#ff375f','#5e5ce6'];
-const COEF_YEARS=[2023,2024,2025,2026];
+const CY=[2023,2024,2025,2026];
 
-let AD={},curY=2024,selCh=null,selMonths=null;
-let coefData={},coefYear=2024,coefLoaded=false;
-let c1=null,c2=null,c3=null,c4=null,c5=null,c6ref=null;
+let AD={},curY=2024,selCh=null,selMonths=null,coefData={},coefYear=2024,coefLoaded=false;
+let c1,c2,c3,c4,c5,c6ref;
 const gc='rgba(255,255,255,0.04)',tc='#6e6e73';
-
 function fmt(n){return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,' ')}
 function pN(s){if(!s)return 0;return parseInt(String(s).replace(/\s/g,'').replace(/,/g,''))||0}
 function pC(s){if(!s)return 0;return parseFloat(String(s).replace(',','.').replace('%',''))||0}
 
-// ===== GOOGLE SHEETS =====
-async function loadData(){
-  try{
-    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('Каналы')}`;
-    const res=await fetch(url);const text=await res.text();
-    const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);?/)[1]);
-    let cM=null,cY=null;
-    json.table.rows.forEach(row=>{
-      const cells=row.c||[];const a=cells[0]?cells[0].v:'';if(!a)return;
-      const s=String(a).trim(),mm=s.match(/^(\S+)\s+(\d{4})$/i);
-      if(mm){const mn=mm[1].toLowerCase(),yr=parseInt(mm[2]);if(MRU[mn]!==undefined){cM=MRU[mn];cY=yr;if(!AD[yr])AD[yr]={months:{}};if(!AD[yr].months[cM])AD[yr].months[cM]={channels:[],total:null}}return}
-      if(s==='Канал'||!cY)return;
-      const v=cells[1]?pN(cells[1].v):0,cl=cells[2]?pN(cells[2].v):0,ld=cells[3]?pN(cells[3].v):0,cv=cells[4]?(cells[4].v||cells[4].f||'0%'):'0%';
-      if(s==='Итого')AD[cY].months[cM].total={visitors:v,clicks:cl,leads:ld,conv:pC(cv)};
-      else AD[cY].months[cM].channels.push({name:s,visitors:v,clicks:cl,leads:ld,conv:pC(cv)});
-    });
-    const yrs=Object.keys(AD).map(Number).sort();
-    curY=yrs.includes(2024)?2024:yrs[yrs.length-1];
-    renderAll();
-  }catch(e){document.getElementById('dashboard').innerHTML=`<div class="loading" style="color:#ff453a">Ошибка: ${e.message}</div>`}
-}
+// ===== SHEETS LOAD =====
+async function loadData(){try{const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('Каналы')}`;const res=await fetch(url);const text=await res.text();const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);?/)[1]);let cM=null,cY=null;json.table.rows.forEach(row=>{const cells=row.c||[];const a=cells[0]?cells[0].v:'';if(!a)return;const s=String(a).trim(),mm=s.match(/^(\S+)\s+(\d{4})$/i);if(mm){const mn=mm[1].toLowerCase(),yr=parseInt(mm[2]);if(MRU[mn]!==undefined){cM=MRU[mn];cY=yr;if(!AD[yr])AD[yr]={months:{}};if(!AD[yr].months[cM])AD[yr].months[cM]={channels:[],total:null}}return}if(s==='Канал'||!cY)return;const v=cells[1]?pN(cells[1].v):0,cl=cells[2]?pN(cells[2].v):0,ld=cells[3]?pN(cells[3].v):0,cv=cells[4]?(cells[4].v||cells[4].f||'0%'):'0%';if(s==='Итого')AD[cY].months[cM].total={visitors:v,clicks:cl,leads:ld,conv:pC(cv)};else AD[cY].months[cM].channels.push({name:s,visitors:v,clicks:cl,leads:ld,conv:pC(cv)})});const yrs=Object.keys(AD).map(Number).sort();curY=yrs.includes(2024)?2024:yrs[yrs.length-1];renderAll()}catch(e){document.getElementById('dashboard').innerHTML=`<div class="loading" style="color:#ff453a">Ошибка: ${e.message}</div>`}}
 
 function yrBtns(id){const yrs=Object.keys(AD).map(Number).sort();document.getElementById(id).innerHTML=yrs.map(y=>`<button class="f-btn${y===curY?' active':''}" onclick="setY(${y})">${y}</button>`).join('')}
 function setY(y){curY=y;selCh=null;selMonths=null;renderAll()}
 function renderAll(){yrBtns('yf0');yrBtns('yf1');renderMonthPills();renderTraffic();renderChannels()}
-
 function renderMonthPills(){const yd=AD[curY];if(!yd)return;const sm=Object.keys(yd.months).map(Number).sort((a,b)=>a-b);let h=`<button class="mp all${selMonths===null?' active':''}" onclick="selMonths=null;renderTraffic();renderMonthPills()">Все</button>`;sm.forEach(m=>{h+=`<button class="mp${selMonths&&selMonths.includes(m)?' active':''}" onclick="toggleMonth(${m})">${MS[m]}</button>`});document.getElementById('month-pills').innerHTML=h}
-function toggleMonth(m){if(!selMonths)selMonths=[];const i=selMonths.indexOf(m);if(i>=0)selMonths.splice(i,1);else selMonths.push(m);if(selMonths.length===0)selMonths=null;renderTraffic();renderMonthPills()}
-
-function getFiltered(year){const yd=AD[year];if(!yd)return null;let sm=Object.keys(yd.months).map(Number).sort((a,b)=>a-b);if(selMonths&&year===curY)sm=sm.filter(m=>selMonths.includes(m));const mo=[],vi=[],cl=[],le=[];const ca={};sm.forEach(m=>{const d=yd.months[m];if(!d||!d.total)return;mo.push(MS[m]);vi.push(d.total.visitors);cl.push(d.total.clicks);le.push(d.total.leads);d.channels.forEach(ch=>{if(!ca[ch.name])ca[ch.name]={visitors:0,clicks:0,leads:0,monthly:{}};ca[ch.name].visitors+=ch.visitors;ca[ch.name].clicks+=ch.clicks;ca[ch.name].leads+=ch.leads;ca[ch.name].monthly[m]=ch})});const tv=vi.reduce((a,b)=>a+b,0),tcl=cl.reduce((a,b)=>a+b,0),tl=le.reduce((a,b)=>a+b,0);return{sm,mo,vi,cl,le,ca,tv,tcl,tl,avgConv:tv>0?((tcl/tv)*100).toFixed(1):'0'}}
-
+function toggleMonth(m){if(!selMonths)selMonths=[];const i=selMonths.indexOf(m);if(i>=0)selMonths.splice(i,1);else selMonths.push(m);if(!selMonths.length)selMonths=null;renderTraffic();renderMonthPills()}
+function getF(year){const yd=AD[year];if(!yd)return null;let sm=Object.keys(yd.months).map(Number).sort((a,b)=>a-b);if(selMonths&&year===curY)sm=sm.filter(m=>selMonths.includes(m));const mo=[],vi=[],cl=[],le=[];const ca={};sm.forEach(m=>{const d=yd.months[m];if(!d||!d.total)return;mo.push(MS[m]);vi.push(d.total.visitors);cl.push(d.total.clicks);le.push(d.total.leads);d.channels.forEach(ch=>{if(!ca[ch.name])ca[ch.name]={visitors:0,clicks:0,leads:0,monthly:{}};ca[ch.name].visitors+=ch.visitors;ca[ch.name].clicks+=ch.clicks;ca[ch.name].leads+=ch.leads;ca[ch.name].monthly[m]=ch})});const tv=vi.reduce((a,b)=>a+b,0),tcl=cl.reduce((a,b)=>a+b,0),tl=le.reduce((a,b)=>a+b,0);return{sm,mo,vi,cl,le,ca,tv,tcl,tl,avgConv:tv>0?((tcl/tv)*100).toFixed(1):'0'}}
 function pctCh(c,p){if(!p||p===0)return{v:0,t:'—',cls:'c-neutral'};const r=((c-p)/p*100).toFixed(1);return r>0?{v:r,t:'↑'+r+'%',cls:'c-up'}:r<0?{v:r,t:'↓'+Math.abs(r)+'%',cls:'c-down'}:{v:0,t:'0%',cls:'c-neutral'}}
 
-function renderTraffic(){const d=getFiltered(curY);if(!d||d.sm.length===0){document.getElementById('dashboard').innerHTML='<div class="loading">Нет данных</div>';return}const fm=MF[d.sm[0]],lm=MF[d.sm[d.sm.length-1]];document.getElementById('yr-title').textContent=curY;document.getElementById('yr-sub').textContent=(selMonths?'Выбрано '+d.sm.length+' мес.':fm+' — '+lm+' '+curY)+' · live из Google Sheets';const pY=curY-1;let pD=null;if(AD[pY]){const py=AD[pY];const ps=d.sm.filter(m=>py.months[m]&&py.months[m].total);if(ps.length>0){pD={tv:0,tcl:0,tl:0};ps.forEach(m=>{const t=py.months[m].total;pD.tv+=t.visitors;pD.tcl+=t.clicks;pD.tl+=t.leads})}}const chV=pD?pctCh(d.tv,pD.tv):{t:'',cls:'c-neutral'},chC=pD?pctCh(d.tcl,pD.tcl):{t:'',cls:'c-neutral'},chL=pD?pctCh(d.tl,pD.tl):{t:'',cls:'c-neutral'},pCv=pD&&pD.tv>0?((pD.tcl/pD.tv)*100).toFixed(1):0,chCv=pD?pctCh(parseFloat(d.avgConv),parseFloat(pCv)):{t:'',cls:'c-neutral'};let h=`<div class="metrics-grid"><div class="mc"><div class="l">Посетители</div><div class="v vb">${d.tv>=1e3?(d.tv/1e3).toFixed(0)+'K':d.tv}</div><div class="c ${chV.cls}">${pD?'vs '+pY+' '+chV.t:d.mo.length+' мес.'}</div></div><div class="mc"><div class="l">Клики</div><div class="v vp">${d.tcl>=1e3?(d.tcl/1e3).toFixed(1)+'K':d.tcl}</div><div class="c ${chC.cls}">${pD?'vs '+pY+' '+chC.t:'на контакты'}</div></div><div class="mc"><div class="l">Заявки</div><div class="v vg">${fmt(d.tl)}</div><div class="c ${chL.cls}">${pD?'vs '+pY+' '+chL.t:fm+'–'+lm}</div></div><div class="mc"><div class="l">Ср. конверсия</div><div class="v va">${d.avgConv}%</div><div class="c ${chCv.cls}">${pD?'vs '+pY+' '+chCv.t:'клики/посетители'}</div></div></div>`;if(pD){h+=`<div class="compare-box"><h3>Сравнение: ${curY} vs ${pY}</h3><div class="cmp-grid"><div class="cmp-card"><div class="cmp-label">Посетители</div><div class="cmp-row"><div class="cmp-val vb">${fmt(d.tv)}</div><span class="cmp-change ${chV.v>0?'up':'down'}">${chV.t}</span></div><div style="font-size:.7rem;color:#6e6e73;margin-top:4px">${pY}: ${fmt(pD.tv)}</div></div><div class="cmp-card"><div class="cmp-label">Клики</div><div class="cmp-row"><div class="cmp-val vp">${fmt(d.tcl)}</div><span class="cmp-change ${chC.v>0?'up':'down'}">${chC.t}</span></div><div style="font-size:.7rem;color:#6e6e73;margin-top:4px">${pY}: ${fmt(pD.tcl)}</div></div><div class="cmp-card"><div class="cmp-label">Заявки</div><div class="cmp-row"><div class="cmp-val vg">${fmt(d.tl)}</div><span class="cmp-change ${chL.v>0?'up':'down'}">${chL.t}</span></div><div style="font-size:.7rem;color:#6e6e73;margin-top:4px">${pY}: ${fmt(pD.tl)}</div></div><div class="cmp-card"><div class="cmp-label">Конверсия</div><div class="cmp-row"><div class="cmp-val va">${d.avgConv}%</div><span class="cmp-change ${chCv.v>0?'up':'down'}">${chCv.t}</span></div><div style="font-size:.7rem;color:#6e6e73;margin-top:4px">${pY}: ${pCv}%</div></div></div></div>`}h+=`<div class="charts-row"><div class="cb"><h3>Посетители и клики</h3><div class="chart-wrap"><canvas id="cV"></canvas></div></div><div class="cb"><h3>Заявки</h3><div class="chart-wrap"><canvas id="cL"></canvas></div></div></div>`;h+=`<div class="tb"><h3>Помесячная сводка — ${curY}</h3><table><thead><tr><th>Месяц</th><th class="n">Посетители</th><th class="n">Клики</th><th class="n">Заявки</th><th class="n">Конверсия</th>${pD?'<th class="n">Пос. '+pY+'</th><th class="n">Δ%</th>':''}</tr></thead><tbody>`;d.sm.forEach(m=>{const t=AD[curY].months[m].total;if(!t)return;h+=`<tr><td>${MF[m]}</td><td class="n">${fmt(t.visitors)}</td><td class="n">${fmt(t.clicks)}</td><td class="n">${t.leads}</td><td class="n">${t.conv.toFixed(2).replace('.',',')}%</td>`;if(pD&&AD[pY]&&AD[pY].months[m]&&AD[pY].months[m].total){const pt=AD[pY].months[m].total;const ch=pctCh(t.visitors,pt.visitors);h+=`<td class="n">${fmt(pt.visitors)}</td><td class="n ${ch.cls}">${ch.t}</td>`}else if(pD)h+=`<td class="n">—</td><td class="n">—</td>`;h+=`</tr>`});h+=`<tr class="total"><td>Итого</td><td class="n" style="color:#2997ff">${fmt(d.tv)}</td><td class="n" style="color:#bf5af2">${fmt(d.tcl)}</td><td class="n" style="color:#30d158">${fmt(d.tl)}</td><td class="n" style="color:#ff9f0a">${d.avgConv}%</td>`;if(pD){const ch=pctCh(d.tv,pD.tv);h+=`<td class="n">${fmt(pD.tv)}</td><td class="n ${ch.cls}">${ch.t}</td>`}h+=`</tr></tbody></table></div>`;h+=`<div class="cb"><h3>Каналы</h3><div class="chart-wrap"><canvas id="cC"></canvas></div></div>`;document.getElementById('dashboard').innerHTML=h;if(c1)c1.destroy();if(c2)c2.destroy();if(c3)c3.destroy();c1=new Chart(document.getElementById('cV'),{type:'line',data:{labels:d.mo,datasets:[{label:'Посетители',data:d.vi,borderColor:'#2997ff',backgroundColor:'rgba(41,151,255,0.08)',fill:true,tension:.4,pointRadius:3,borderWidth:2},{label:'Клики',data:d.cl,borderColor:'#bf5af2',backgroundColor:'rgba(191,90,242,0.08)',fill:true,tension:.4,pointRadius:3,borderWidth:2,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tc,font:{size:11},boxWidth:12}}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc,callback:v=>v>=1e3?(v/1e3)+'K':v}},y1:{position:'right',grid:{drawOnChartArea:false},ticks:{color:tc,callback:v=>v>=1e3?(v/1e3)+'K':v}}}}});c2=new Chart(document.getElementById('cL'),{type:'bar',data:{labels:d.mo,datasets:[{data:d.le,backgroundColor:d.le.map(v=>{const mx=Math.max(...d.le);return v>=mx*.7?'#30d158':'rgba(48,209,88,0.5)'}),borderRadius:4,barPercentage:.6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc}}}}});const cs=Object.entries(d.ca).sort((a,b)=>b[1].visitors-a[1].visitors);c3=new Chart(document.getElementById('cC'),{type:'bar',data:{labels:cs.map(c=>c[0]),datasets:[{label:'Посетители (тыс.)',data:cs.map(c=>+(c[1].visitors/1e3).toFixed(1)),backgroundColor:'#2997ff',borderRadius:3,barPercentage:.7},{label:'Клики (тыс.)',data:cs.map(c=>+(c[1].clicks/1e3).toFixed(1)),backgroundColor:'#bf5af2',borderRadius:3,barPercentage:.7}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{labels:{color:tc,font:{size:11},boxWidth:12}}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc,font:{size:11}}}}}})}
+function renderTraffic(){const d=getF(curY);if(!d||!d.sm.length){document.getElementById('dashboard').innerHTML='<div class="loading">Нет данных</div>';return}const fm=MF[d.sm[0]],lm=MF[d.sm[d.sm.length-1]];document.getElementById('yr-title').textContent=curY;document.getElementById('yr-sub').textContent=(selMonths?'Выбрано '+d.sm.length+' мес.':fm+' — '+lm+' '+curY)+' · live';const pY=curY-1;let pD=null;if(AD[pY]){const ps=d.sm.filter(m=>AD[pY].months[m]&&AD[pY].months[m].total);if(ps.length){pD={tv:0,tcl:0,tl:0};ps.forEach(m=>{const t=AD[pY].months[m].total;pD.tv+=t.visitors;pD.tcl+=t.clicks;pD.tl+=t.leads})}}const chV=pD?pctCh(d.tv,pD.tv):{t:'',cls:'c-neutral'},chC=pD?pctCh(d.tcl,pD.tcl):{t:'',cls:'c-neutral'},chL=pD?pctCh(d.tl,pD.tl):{t:'',cls:'c-neutral'},pCv=pD&&pD.tv>0?((pD.tcl/pD.tv)*100).toFixed(1):0,chCv=pD?pctCh(parseFloat(d.avgConv),parseFloat(pCv)):{t:'',cls:'c-neutral'};let h=`<div class="metrics-grid"><div class="mc"><div class="l">Посетители</div><div class="v vb">${d.tv>=1e3?(d.tv/1e3).toFixed(0)+'K':d.tv}</div><div class="c ${chV.cls}">${pD?'vs '+pY+' '+chV.t:d.mo.length+' мес.'}</div></div><div class="mc"><div class="l">Клики</div><div class="v vp">${d.tcl>=1e3?(d.tcl/1e3).toFixed(1)+'K':d.tcl}</div><div class="c ${chC.cls}">${pD?'vs '+pY+' '+chC.t:'на контакты'}</div></div><div class="mc"><div class="l">Заявки</div><div class="v vg">${fmt(d.tl)}</div><div class="c ${chL.cls}">${pD?'vs '+pY+' '+chL.t:fm+'–'+lm}</div></div><div class="mc"><div class="l">Ср. конверсия</div><div class="v va">${d.avgConv}%</div><div class="c ${chCv.cls}">${pD?'vs '+pY+' '+chCv.t:'клики/посетители'}</div></div></div>`;if(pD){h+=`<div class="compare-box"><h3>Сравнение: ${curY} vs ${pY}</h3><div class="cmp-grid"><div class="cmp-card"><div class="cmp-label">Посетители</div><div class="cmp-row"><div class="cmp-val vb">${fmt(d.tv)}</div><span class="cmp-change ${chV.v>0?'up':'down'}">${chV.t}</span></div><div style="font-size:.7rem;color:#6e6e73;margin-top:4px">${pY}: ${fmt(pD.tv)}</div></div><div class="cmp-card"><div class="cmp-label">Клики</div><div class="cmp-row"><div class="cmp-val vp">${fmt(d.tcl)}</div><span class="cmp-change ${chC.v>0?'up':'down'}">${chC.t}</span></div><div style="font-size:.7rem;color:#6e6e73;margin-top:4px">${pY}: ${fmt(pD.tcl)}</div></div><div class="cmp-card"><div class="cmp-label">Заявки</div><div class="cmp-row"><div class="cmp-val vg">${fmt(d.tl)}</div><span class="cmp-change ${chL.v>0?'up':'down'}">${chL.t}</span></div><div style="font-size:.7rem;color:#6e6e73;margin-top:4px">${pY}: ${fmt(pD.tl)}</div></div><div class="cmp-card"><div class="cmp-label">Конверсия</div><div class="cmp-row"><div class="cmp-val va">${d.avgConv}%</div><span class="cmp-change ${chCv.v>0?'up':'down'}">${chCv.t}</span></div><div style="font-size:.7rem;color:#6e6e73;margin-top:4px">${pY}: ${pCv}%</div></div></div></div>`}h+=`<div class="charts-row"><div class="cb"><h3>Посетители и клики</h3><div class="chart-wrap"><canvas id="cV"></canvas></div></div><div class="cb"><h3>Заявки</h3><div class="chart-wrap"><canvas id="cL"></canvas></div></div></div>`;h+=`<div class="tb"><h3>Помесячная сводка — ${curY}</h3><table><thead><tr><th>Месяц</th><th class="n">Посетители</th><th class="n">Клики</th><th class="n">Заявки</th><th class="n">Конверсия</th>${pD?'<th class="n">Пос.'+pY+'</th><th class="n">Δ%</th>':''}</tr></thead><tbody>`;d.sm.forEach(m=>{const t=AD[curY].months[m].total;if(!t)return;h+=`<tr><td>${MF[m]}</td><td class="n">${fmt(t.visitors)}</td><td class="n">${fmt(t.clicks)}</td><td class="n">${t.leads}</td><td class="n">${t.conv.toFixed(2).replace('.',',')}%</td>`;if(pD&&AD[pY]&&AD[pY].months[m]&&AD[pY].months[m].total){const pt=AD[pY].months[m].total;const ch=pctCh(t.visitors,pt.visitors);h+=`<td class="n">${fmt(pt.visitors)}</td><td class="n ${ch.cls}">${ch.t}</td>`}else if(pD)h+=`<td class="n">—</td><td class="n">—</td>`;h+=`</tr>`});h+=`<tr class="total"><td>Итого</td><td class="n" style="color:#2997ff">${fmt(d.tv)}</td><td class="n" style="color:#bf5af2">${fmt(d.tcl)}</td><td class="n" style="color:#30d158">${fmt(d.tl)}</td><td class="n" style="color:#ff9f0a">${d.avgConv}%</td>`;if(pD){const ch=pctCh(d.tv,pD.tv);h+=`<td class="n">${fmt(pD.tv)}</td><td class="n ${ch.cls}">${ch.t}</td>`}h+=`</tr></tbody></table></div>`;h+=`<div class="cb"><h3>Каналы</h3><div class="chart-wrap"><canvas id="cC"></canvas></div></div>`;document.getElementById('dashboard').innerHTML=h;if(c1)c1.destroy();if(c2)c2.destroy();if(c3)c3.destroy();c1=new Chart(document.getElementById('cV'),{type:'line',data:{labels:d.mo,datasets:[{label:'Посетители',data:d.vi,borderColor:'#2997ff',backgroundColor:'rgba(41,151,255,0.08)',fill:true,tension:.4,pointRadius:3,borderWidth:2},{label:'Клики',data:d.cl,borderColor:'#bf5af2',backgroundColor:'rgba(191,90,242,0.08)',fill:true,tension:.4,pointRadius:3,borderWidth:2,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tc,font:{size:11},boxWidth:12}}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc,callback:v=>v>=1e3?(v/1e3)+'K':v}},y1:{position:'right',grid:{drawOnChartArea:false},ticks:{color:tc,callback:v=>v>=1e3?(v/1e3)+'K':v}}}}});c2=new Chart(document.getElementById('cL'),{type:'bar',data:{labels:d.mo,datasets:[{data:d.le,backgroundColor:d.le.map(v=>{const mx=Math.max(...d.le);return v>=mx*.7?'#30d158':'rgba(48,209,88,0.5)'}),borderRadius:4,barPercentage:.6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc}}}}});const cs=Object.entries(d.ca).sort((a,b)=>b[1].visitors-a[1].visitors);c3=new Chart(document.getElementById('cC'),{type:'bar',data:{labels:cs.map(c=>c[0]),datasets:[{label:'Посетители (тыс.)',data:cs.map(c=>+(c[1].visitors/1e3).toFixed(1)),backgroundColor:'#2997ff',borderRadius:3,barPercentage:.7},{label:'Клики (тыс.)',data:cs.map(c=>+(c[1].clicks/1e3).toFixed(1)),backgroundColor:'#bf5af2',borderRadius:3,barPercentage:.7}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{labels:{color:tc,font:{size:11},boxWidth:12}}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc,font:{size:11}}}}}})}
 
-function renderChannels(){const d=getFiltered(curY);if(!d||d.sm.length===0){document.getElementById('channels-dash').innerHTML='<div class="loading">Нет данных</div>';return}document.getElementById('yr-title2').textContent=curY;document.getElementById('yr-sub2').textContent=MF[d.sm[0]]+' — '+MF[d.sm[d.sm.length-1]]+' '+curY;const cs=Object.entries(d.ca).sort((a,b)=>b[1].visitors-a[1].visitors);if(!selCh&&cs.length)selCh=cs[0][0];let h=`<div class="ch-cards">`;cs.forEach(([name,data])=>{const pct=d.tv>0?((data.visitors/d.tv)*100).toFixed(1):'0';h+=`<div class="ch-card${name===selCh?' sel':''}" onclick="selCh='${name.replace(/'/g,"\\'")}';renderChannels()"><div class="ch-name">${name}</div><div class="ch-val">${(data.visitors/1e3).toFixed(1)}K</div><div class="ch-sub">${pct}% · ${data.leads} заявок</div></div>`});h+=`</div>`;const allSm=Object.keys(AD[curY].months).map(Number).sort((a,b)=>a-b),allMo=allSm.map(m=>MS[m]);h+=`<div class="charts-row"><div class="cb"><h3>${selCh} — посетители</h3><div class="chart-wrap"><canvas id="cChV"></canvas></div></div><div class="cb"><h3>${selCh} — заявки</h3><div class="chart-wrap"><canvas id="cChL"></canvas></div></div></div>`;h+=`<div class="cb"><h3>Топ каналы</h3><div class="chart-wrap-tall"><canvas id="cChAll"></canvas></div></div>`;h+=`<div class="tb"><h3>Сводная — ${curY}</h3><table><thead><tr><th>Канал</th><th class="n">Посетители</th><th class="n">%</th><th class="n">Клики</th><th class="n">Заявки</th><th class="n">Конв.</th></tr></thead><tbody>`;cs.forEach(([name,data])=>{const pct=d.tv>0?((data.visitors/d.tv)*100).toFixed(1):'0';const cv=data.visitors>0?((data.clicks/data.visitors)*100).toFixed(2):'0';h+=`<tr><td>${name}</td><td class="n">${fmt(data.visitors)}</td><td class="n">${pct}%</td><td class="n">${fmt(data.clicks)}</td><td class="n">${data.leads}</td><td class="n">${cv.replace('.',',')}%</td></tr>`});h+=`<tr class="total"><td>Итого</td><td class="n" style="color:#2997ff">${fmt(d.tv)}</td><td class="n">100%</td><td class="n" style="color:#bf5af2">${fmt(d.tcl)}</td><td class="n" style="color:#30d158">${fmt(d.tl)}</td><td class="n" style="color:#ff9f0a">${d.avgConv}%</td></tr></tbody></table></div>`;document.getElementById('channels-dash').innerHTML=h;if(c4)c4.destroy();if(c5)c5.destroy();if(c6ref)c6ref.destroy();const chData=d.ca[selCh];if(chData){c4=new Chart(document.getElementById('cChV'),{type:'line',data:{labels:allMo,datasets:[{data:allSm.map(m=>chData.monthly[m]?chData.monthly[m].visitors:0),borderColor:'#2997ff',backgroundColor:'rgba(41,151,255,0.1)',fill:true,tension:.4,pointRadius:4,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc,callback:v=>v>=1e3?(v/1e3)+'K':v}}}}});c5=new Chart(document.getElementById('cChL'),{type:'bar',data:{labels:allMo,datasets:[{data:allSm.map(m=>chData.monthly[m]?chData.monthly[m].leads:0),backgroundColor:'#30d158',borderRadius:4,barPercentage:.6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc}}}}})}const topCh=cs.slice(0,6);c6ref=new Chart(document.getElementById('cChAll'),{type:'line',data:{labels:allMo,datasets:topCh.map(([name,data],i)=>({label:name,data:allSm.map(m=>data.monthly[m]?data.monthly[m].visitors:0),borderColor:CHCOL[i%CHCOL.length],backgroundColor:'transparent',tension:.4,pointRadius:2,borderWidth:2}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tc,font:{size:11},boxWidth:12}}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc,callback:v=>v>=1e3?(v/1e3)+'K':v}}}}})}
+function renderChannels(){const d=getF(curY);if(!d||!d.sm.length){document.getElementById('channels-dash').innerHTML='<div class="loading">Нет данных</div>';return}document.getElementById('yr-title2').textContent=curY;document.getElementById('yr-sub2').textContent=MF[d.sm[0]]+' — '+MF[d.sm[d.sm.length-1]]+' '+curY;const cs=Object.entries(d.ca).sort((a,b)=>b[1].visitors-a[1].visitors);if(!selCh&&cs.length)selCh=cs[0][0];let h=`<div class="ch-cards">`;cs.forEach(([name,data])=>{const pct=d.tv>0?((data.visitors/d.tv)*100).toFixed(1):'0';h+=`<div class="ch-card${name===selCh?' sel':''}" onclick="selCh='${name.replace(/'/g,"\\'")}';renderChannels()"><div class="ch-name">${name}</div><div class="ch-val">${(data.visitors/1e3).toFixed(1)}K</div><div class="ch-sub">${pct}% · ${data.leads} заявок</div></div>`});h+=`</div>`;const allSm=Object.keys(AD[curY].months).map(Number).sort((a,b)=>a-b),allMo=allSm.map(m=>MS[m]);h+=`<div class="charts-row"><div class="cb"><h3>${selCh} — посетители</h3><div class="chart-wrap"><canvas id="cChV"></canvas></div></div><div class="cb"><h3>${selCh} — заявки</h3><div class="chart-wrap"><canvas id="cChL"></canvas></div></div></div>`;h+=`<div class="cb"><h3>Топ каналы</h3><div class="chart-wrap-tall"><canvas id="cChAll"></canvas></div></div>`;h+=`<div class="tb"><h3>Сводная — ${curY}</h3><table><thead><tr><th>Канал</th><th class="n">Посетители</th><th class="n">%</th><th class="n">Клики</th><th class="n">Заявки</th><th class="n">Конв.</th></tr></thead><tbody>`;cs.forEach(([name,data])=>{const pct=d.tv>0?((data.visitors/d.tv)*100).toFixed(1):'0';const cv=data.visitors>0?((data.clicks/data.visitors)*100).toFixed(2):'0';h+=`<tr><td>${name}</td><td class="n">${fmt(data.visitors)}</td><td class="n">${pct}%</td><td class="n">${fmt(data.clicks)}</td><td class="n">${data.leads}</td><td class="n">${cv.replace('.',',')}%</td></tr>`});h+=`<tr class="total"><td>Итого</td><td class="n" style="color:#2997ff">${fmt(d.tv)}</td><td class="n">100%</td><td class="n" style="color:#bf5af2">${fmt(d.tcl)}</td><td class="n" style="color:#30d158">${fmt(d.tl)}</td><td class="n" style="color:#ff9f0a">${d.avgConv}%</td></tr></tbody></table></div>`;document.getElementById('channels-dash').innerHTML=h;if(c4)c4.destroy();if(c5)c5.destroy();if(c6ref)c6ref.destroy();const chData=d.ca[selCh];if(chData){c4=new Chart(document.getElementById('cChV'),{type:'line',data:{labels:allMo,datasets:[{data:allSm.map(m=>chData.monthly[m]?chData.monthly[m].visitors:0),borderColor:'#2997ff',backgroundColor:'rgba(41,151,255,0.1)',fill:true,tension:.4,pointRadius:4,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc,callback:v=>v>=1e3?(v/1e3)+'K':v}}}}});c5=new Chart(document.getElementById('cChL'),{type:'bar',data:{labels:allMo,datasets:[{data:allSm.map(m=>chData.monthly[m]?chData.monthly[m].leads:0),backgroundColor:'#30d158',borderRadius:4,barPercentage:.6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc}}}}})}const topCh=cs.slice(0,6);c6ref=new Chart(document.getElementById('cChAll'),{type:'line',data:{labels:allMo,datasets:topCh.map(([name,data],i)=>({label:name,data:allSm.map(m=>data.monthly[m]?data.monthly[m].visitors:0),borderColor:CHCOL[i%CHCOL.length],backgroundColor:'transparent',tension:.4,pointRadius:2,borderWidth:2}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tc,font:{size:11},boxWidth:12}}},scales:{x:{grid:{color:gc},ticks:{color:tc}},y:{grid:{color:gc},ticks:{color:tc,callback:v=>v>=1e3?(v/1e3)+'K':v}}}}})}
 
-// ===== КОЭФФИЦИЕНТЫ =====
-async function loadCoefficients(){
+// ===== КОЭФФИЦИЕНТЫ (Excel) =====
+async function loadCoef(){
   coefLoaded=true;
-  const el=document.getElementById('coef-dash');
-  el.innerHTML='<div class="loading"><div class="spinner"></div>Загрузка коэффициентов...</div>';
   coefData={};
-  for(const yr of COEF_YEARS){
+  for(const yr of CY){
     coefData[yr]={};
     for(let m=1;m<=12;m++){
       const mm=String(m).padStart(2,'0');
       try{
-        const res=await fetch(`/coefficients/${yr}/${mm}.json`);
-        if(res.ok)coefData[yr][m]=await res.json();
-        else coefData[yr][m]=null;
+        const res=await fetch(`/coefficients/${yr}/${mm}.xlsx`);
+        if(res.ok&&res.headers.get('content-type')!=='text/html'){
+          const buf=await res.arrayBuffer();
+          const wb=XLSX.read(buf,{type:'array'});
+          const sheets={};
+          wb.SheetNames.forEach(name=>{sheets[name]=XLSX.utils.sheet_to_json(wb.Sheets[name],{header:1})});
+          coefData[yr][m]={sheets,names:wb.SheetNames};
+        }else{coefData[yr][m]=null}
       }catch(e){coefData[yr][m]=null}
     }
   }
-  renderCoefYearBtns();
-  renderCoefficients();
+  renderCoefBtns();renderCoef();
 }
 
-function renderCoefYearBtns(){
-  document.getElementById('yf-coef').innerHTML=COEF_YEARS.map(y=>`<button class="f-btn${y===coefYear?' active':''}" onclick="coefYear=${y};renderCoefYearBtns();renderCoefficients()">${y}</button>`).join('');
-}
+function renderCoefBtns(){document.getElementById('yf-coef').innerHTML=CY.map(y=>`<button class="f-btn${y===coefYear?' active':''}" onclick="coefYear=${y};renderCoefBtns();renderCoef()">${y}</button>`).join('')}
 
-function renderCoefficients(){
+function renderCoef(){
   document.getElementById('coef-yr').textContent=coefYear;
-  const yd=coefData[coefYear];
-  if(!yd){document.getElementById('coef-dash').innerHTML='<div class="loading">Нет данных</div>';return}
-
-  let filledCount=0;
-  for(let m=1;m<=12;m++){if(yd[m]&&yd[m].data&&Object.keys(yd[m].data).length>0)filledCount++}
-
-  document.getElementById('coef-sub').textContent=`${filledCount} из 12 месяцев заполнено · Редактируйте JSON на GitHub`;
+  const yd=coefData[coefYear]||{};
+  let filled=0;for(let m=1;m<=12;m++)if(yd[m])filled++;
+  document.getElementById('coef-sub').textContent=`${filled} из 12 месяцев загружено · Excel файлы из GitHub`;
 
   let h=`<div class="coef-grid">`;
   for(let m=1;m<=12;m++){
     const d=yd[m];
     const mm=String(m).padStart(2,'0');
-    const keys=d&&d.data?Object.keys(d.data):[];
-    const filled=keys.length>0;
-    const editUrl=`https://github.com/${REPO}/edit/main/public/coefficients/${coefYear}/${mm}.json`;
-    h+=`<div class="coef-month">
-      <div class="cm-head"><span class="cm-name">${MF[m-1]}</span><span class="cm-status ${filled?'filled':'empty'}">${filled?keys.length+' полей':'пусто'}</span></div>
-      <div class="cm-keys">${filled?keys.slice(0,3).join(', ')+(keys.length>3?' ...':''):'Нет данных'}</div>
-      <a href="${editUrl}" target="_blank" class="cm-edit">Редактировать →</a>
-    </div>`;
+    const uploadUrl=`https://github.com/${REPO}/tree/main/public/coefficients/${coefYear}`;
+    if(d){
+      const rows=d.sheets[d.names[0]]?d.sheets[d.names[0]].length:0;
+      const sheetCount=d.names.length;
+      h+=`<div class="coef-month"><div class="cm-head"><span class="cm-name">${MF[m-1]}</span><span class="cm-badge ok">${rows} строк</span></div><div class="cm-info">${sheetCount} лист(ов): ${d.names.join(', ')}</div><a href="${uploadUrl}" target="_blank" class="cm-link">Заменить →</a></div>`;
+    }else{
+      h+=`<div class="coef-month"><div class="cm-head"><span class="cm-name">${MF[m-1]}</span><span class="cm-badge no">нет файла</span></div><div class="cm-info">Загрузите ${mm}.xlsx</div><a href="${uploadUrl}" target="_blank" class="cm-link">Загрузить →</a></div>`;
+    }
   }
   h+=`</div>`;
 
-  // Show detailed table of filled months
-  const filledMonths=[];
-  for(let m=1;m<=12;m++){const d=yd[m];if(d&&d.data&&Object.keys(d.data).length>0)filledMonths.push({m,data:d.data})}
-
-  if(filledMonths.length>0){
-    const allKeys=new Set();
-    filledMonths.forEach(fm=>Object.keys(fm.data).forEach(k=>allKeys.add(k)));
-    const keys=[...allKeys];
-    h+=`<div class="tb"><h3>Данные коэффициентов — ${coefYear}</h3><table><thead><tr><th>Показатель</th>`;
-    filledMonths.forEach(fm=>{h+=`<th class="n">${MS[fm.m-1]}</th>`});
-    h+=`</tr></thead><tbody>`;
-    keys.forEach(k=>{
-      h+=`<tr><td>${k}</td>`;
-      filledMonths.forEach(fm=>{const val=fm.data[k];h+=`<td class="n">${val!==undefined?val:'—'}</td>`});
-      h+=`</tr>`;
+  // Show data from filled months
+  for(let m=1;m<=12;m++){
+    const d=yd[m];if(!d)continue;
+    d.names.forEach(sheetName=>{
+      const rows=d.sheets[sheetName];if(!rows||rows.length<2)return;
+      h+=`<div class="tb"><h3>${MF[m-1]} ${coefYear} — ${sheetName}</h3><table><thead><tr>`;
+      rows[0].forEach(col=>{h+=`<th>${col||''}</th>`});
+      h+=`</tr></thead><tbody>`;
+      for(let r=1;r<rows.length;r++){
+        h+=`<tr>`;rows[r].forEach((cell,ci)=>{h+=`<td class="${ci>0?'n':''}">${cell!==undefined&&cell!==null?cell:''}</td>`});h+=`</tr>`;
+      }
+      h+=`</tbody></table></div>`;
     });
-    h+=`</tbody></table></div>`;
   }
 
+  if(!filled)h+=`<div class="placeholder"><p>Нет загруженных файлов. Зайдите на <a href="https://github.com/${REPO}/tree/main/public/coefficients/${coefYear}" target="_blank" style="color:#2997ff">GitHub</a> и загрузите Excel файлы (01.xlsx, 02.xlsx, ... 12.xlsx)</p></div>`;
   document.getElementById('coef-dash').innerHTML=h;
 }
 
